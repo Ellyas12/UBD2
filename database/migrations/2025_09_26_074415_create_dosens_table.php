@@ -6,22 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('dosens', function (Blueprint $table) {
-            $table->id();
+        Schema::create('dosen', function (Blueprint $table) {
+            $table->id('dosen_id');
+            $table->unsignedBigInteger('user_id')->unique();
+            $table->string('nama', 100);
+            $table->string('telp', 20)->nullable();
+            $table->string('pendidikan', 40)->nullable();            
+            $table->string('bidang', 40)->nullable();            
+            $table->string('profile_picture', 100)->nullable();
+            $table->unsignedBigInteger('jabatan_id')->nullable();
+            $table->unsignedBigInteger('fakultas_id')->nullable();
+            
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('jabatan_id')->references('jabatan_id')->on('jabatan')->onDelete('set null');
+            $table->foreign('fakultas_id')->references('fakultas_id')->on('fakultas')->onDelete('set null');
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('dosens');
+        Schema::dropIfExists('dosen');
     }
 };

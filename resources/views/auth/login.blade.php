@@ -11,7 +11,6 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <script>
-    // Clear inputs when page loads fresh
     window.onload = function () {
       document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"]').forEach(el => {
         el.value = '';
@@ -54,14 +53,22 @@
                  required autocomplete="off">
         </div>
 
-        @error('password')
-          <p class="error-text">{{ $message }}</p>
-        @enderror
-        <div class="input-group">
-          <span class="material-icons input-icon">lock</span>
-          <input type="password" name="password" placeholder="Password"
-                 required autocomplete="new-password">
-        </div>
+@error('password')
+  <p class="error-text">{{ $message }}</p>
+@enderror
+<div class="input-group">
+  <span class="material-icons input-icon">lock</span>
+  <input type="password" 
+         name="password" 
+         placeholder="Password"
+         required 
+         autocomplete="new-password"
+         oncopy="return false" 
+         onpaste="return false" 
+         oncut="return false" 
+         ondrag="return false" 
+         ondrop="return false">
+</div>
 
         <a href="/forgot" class="forgot-link">Forgot Password?</a>
 

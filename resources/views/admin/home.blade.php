@@ -8,7 +8,6 @@
 </head>
 <body>
   <div class="dashboard-container">
-  <!-- Sidebar -->
   <aside class="sidebar">
   <img src="{{ asset('images/ubd-logo.png') }}" alt="UBD Logo">
 

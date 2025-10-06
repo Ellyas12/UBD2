@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\HomeController;
 use App\Http\Controllers\Auth\PenelitianController;
 use App\Http\Controllers\Auth\PkmController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Auth\ProgramController;
 use App\Http\Controllers\Auth\SettingsController;
 use App\Http\Controllers\ForgotPasswordController;
 
@@ -33,20 +34,28 @@ Route::middleware(['guest', 'prevent-back-history'])->group(function () {
     });
 });
 
-
 Route::middleware(['auth', 'prevent-back-history'])->group(function () {
-    Route::get('/home', fn() => view('lecturer.home'))->name('lecturer.home')->middleware('role:Lecturer');
-    Route::get('/admin', fn() => view('admin.home'))->name('admin.home')->middleware('role:Admin');
-
-    // Logout
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::middleware('role:Lecturer')->group(function () {
+        Route::get('/home', [HomeController::class, 'index'])->name('lecturer.home');
+
+
+        Route::get('/program', [ProgramController::class, 'index'])->name('program');
+        Route::post('/program/create', [ProgramController::class, 'store'])->name('program.create');
+
+        Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+        Route::post('/profile/remove-picture', [ProfileController::class, 'removePicture'])
+        ->name('profile.remove-picture');
+        Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/security/send-code', [ProfileController::class, 'sendSecurityCode'])->name('profile.sendSecurityCode');
+        Route::post('/profile/security/verify-code', [ProfileController::class, 'verifySecurityCode'])->name('profile.verifySecurityCode');
+        Route::post('/profile/security/update', [ProfileController::class, 'updateSecurity'])->name('profile.updateSecurity');
+
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+    });
+
+    Route::middleware('role:Admin')->group(function () {
+        Route::get('/admin', fn() => view('admin.home'))->name('admin.home');
+    });
 });
-
-Route::get('/home', [HomeController::class, 'index'])->name('home');
-
-Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-
-Route::get('/penelitian', [PenelitianController::class, 'index'])->name('penelitian');
-Route::get('/pkm', [PkmController::class, 'index'])->name('pkm');
-Route::get('/settings', [SettingsController::class, 'index'])->name('settings');

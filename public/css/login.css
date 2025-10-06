@@ -388,3 +388,98 @@ body::before {
 .btn-submit:hover {
   background: #991b1b;
 }
+
+ .profile-menu [role="tab"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      text-align: left;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .profile-menu [role="tab"][aria-selected="true"] {
+      font-weight: bold;
+      background-color: #f0f0f0;
+      border-left: 4px solid #007BFF;
+    }
+    [role="tabpanel"] {
+      margin-top: 20px;
+    }
+    .profile-form form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .profile-form input, 
+    .profile-form select, 
+    .profile-form textarea {
+      padding: 8px;
+      font-size: 14px;
+    }
+    .btn-submit {
+      padding: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-danger {
+      padding: 10px;
+      background-color: red;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    table th {
+      background: #f5f5f5;
+    }
+    .badge-success {
+      background: #28a745;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .avatar-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.readonly-field {
+  background-color: #f9f9f9;
+  cursor: not-allowed;
+}
+
+.remove-picture-form {
+  margin-top: 10px;
+}
+
+.code-expire-note {
+  display: block;
+  margin-top: 5px;
+  color: gray;
+}
+
+.btn-back {
+  margin-top: 10px;
+  background: #ccc;
+  color: #000;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

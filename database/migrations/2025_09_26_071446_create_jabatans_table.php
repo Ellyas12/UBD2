@@ -12,14 +12,11 @@ return new class extends Migration
 public function up()
 {
     Schema::create('jabatan', function (Blueprint $table) {
-        $table->id();
+        $table->id('jabatan_id');
         $table->string('nama');
     });
 }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('jabatans');

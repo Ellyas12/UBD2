@@ -12,9 +12,9 @@ class FakultasSeeder extends Seeder
    public function run()
 {
     DB::table('fakultas')->insert([
-        ['nama' => 'Fakultas Teknik'],
-        ['nama' => 'Fakultas Ekonomi'],
-        ['nama' => 'Fakultas Hukum'],
+        ['nama' => 'Fakultas Bisnis'],
+        ['nama' => 'Fakultas Sains dan Teknologi'],
+        ['nama' => 'Fakultas Sosial dan Humaniora'],
     ]);
 }
 }

@@ -11,7 +11,6 @@ class Authenticate
     public function handle(Request $request, Closure $next, ...$guards): Response
     {
         if (!auth()->check()) {
-            // Redirect guests to login page
             return redirect('/login');
         }
 

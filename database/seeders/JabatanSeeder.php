@@ -8,9 +8,6 @@ use Illuminate\Database\Seeder;
 
 class JabatanSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run()
 {
     DB::table('jabatan')->insert([

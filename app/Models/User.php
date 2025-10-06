@@ -10,8 +10,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $primaryKey = 'user_id'; // ✅ your PK is user_id
-    public $incrementing = true;       // since it's AUTO_INCREMENT
+    protected $primaryKey = 'user_id';
+    public $incrementing = true;
     protected $keyType = 'int';
 
     protected $fillable = [
@@ -38,5 +38,10 @@ class User extends Authenticatable
     public function getAuthIdentifierName()
     {
         return 'username';
+    }
+
+    public function dosen()
+    {
+        return $this->hasOne(Dosen::class, 'user_id', 'user_id');
     }
 }
