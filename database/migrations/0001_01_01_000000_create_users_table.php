@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email', 100)->unique();
             $table->string('password', 255);
             $table->string('nidn', 100)->unique();
+            $table->enum('posisi', ['Dekan', 'Kaprodi','Guru'])->default('Guru');
             $table->enum('role', ['Lecturer', 'Admin'])->default('Lecturer');
             $table->timestamps();
         });

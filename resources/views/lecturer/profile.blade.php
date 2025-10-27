@@ -113,42 +113,54 @@
 
           <!-- Academic Info -->
           <div id="academic-info" role="tabpanel" aria-labelledby="tab-academic" hidden>
-  <form id="academic-form">
-    
-    <!-- ==================== MATA KULIAH ==================== -->
-    <h3>Mata Kuliah</h3>
-    <input type="text" id="mata-kuliah-search" placeholder="Cari mata kuliah...">
-    <select id="mata-kuliah-options">
-      <option value="Algoritma">Algoritma</option>
-      <option value="Struktur Data">Struktur Data</option>
-      <option value="Jaringan Komputer">Jaringan Komputer</option>
-    </select>
-    <button type="button" id="add-mata-kuliah">Tambah</button>
+          <form id="academic-form">
 
-    <table id="mata-kuliah-list" border="1" style="margin-top:10px; width:100%;">
-      <thead>
-        <tr>
-          <th>Mata Kuliah</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+            <!-- ===== Left Column: Mata Kuliah ===== -->
+            <div class="academic-section">
+              <h3>Mata Kuliah</h3>
+              <input type="text" id="mata-kuliah-search" placeholder="Cari mata kuliah..." style="width:100%;">
+              <select id="mata-kuliah-options" style="width:100%;">
+                <option value="ALGO001">Algoritma</option>
+                <option value="SD002">Struktur Data</option>
+                <option value="JK003">Jaringan Komputer</option>
+              </select>
+              <button type="button" id="add-mata-kuliah" style="width:100%;">Tambah</button>
 
-    <!-- ==================== PRESTASI ==================== -->
-    <h3>Prestasi Akademik</h3>
-    <table id="prestasi-list" border="1" style="margin-top:10px; width:100%;">
-      <thead>
-        <tr>
-          <th>Prestasi</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-      <button type="button" id="add-prestasi">Tambah</button>
-  </form>
-</div>
+              <div class="table-container">
+                <table id="mata-kuliah-list">
+                  <thead>
+                    <tr>
+                      <th>Kode</th>
+                      <th>Nama Mata Kuliah</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ===== Right Column: Prestasi Akademik ===== -->
+            <div class="academic-section">
+              <h3>Prestasi Akademik</h3>
+
+              <button type="button" id="add-prestasi" style="width:100%;">Tambah Prestasi</button>
+
+              <div class="table-container">
+                <table id="prestasi-list">
+                  <thead>
+                    <tr>
+                      <th>Prestasi</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+          </form>
+        </div>
 
           <!-- Research -->
           <div id="research-info" role="tabpanel" aria-labelledby="tab-research" hidden>
@@ -156,26 +168,33 @@
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Judul</th>
-                  <th>Date</th>
-                  <th>Tipe</th>
+                  <th>Tanggal</th>
+                  <th>Jenis</th>
+                  <th>Ketua</th>
                   <th>Status</th>
+                  <th>Stample</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
+                @forelse($programList as $program)
                 <tr>
-                  <td>1</td>
-                  <td>Contoh Judul</td>
-                  <td>2023-10-01</td>
-                  <td>Research</td>
-                  <td><span class="badge-success">Completed</span></td>
-                  <td>
-                    <button>✏️</button>
-                    <button class="btn-danger">🗑️</button>
-                  </td>
+                  <td>{{ $program->judul }}</td>
+                  <td>{{ $program->tanggal }}</td>
+                  <td>{{ $program->jenis }}</td>
+                  <td>{{ $program->ketua }}</td>
+                  <td>{{ $program->status }}</td>
+                  <td>{{ $program->stamp }}</td>
+                <td>
+                  <a href="{{ route('program.view', $program->program_id) }}" class="btn btn-info" target="_blank">👁️ Visit</a>
+                </td>
                 </tr>
+                @empty
+                <tr>
+                  <td colspan="7" style="text-align:center;">No research data available</td>
+                </tr>
+                @endforelse
               </tbody>
             </table>
           </div>
@@ -213,7 +232,6 @@
               <button type="submit" class="btn-submit">Update Security</button>
             </form>
           </div>
-
         </div>
       </div>
     </main>

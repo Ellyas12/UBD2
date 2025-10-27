@@ -8,20 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('file', function (Blueprint $table) {
-            $table->id('file_id');
-            $table->unsignedBigInteger('program_id');
+        Schema::create('file_backup', function (Blueprint $table) {
+            $table->id('file_backup_id');
+            $table->unsignedBigInteger('program_id')->nullable();
             $table->string('nama');
             $table->string('file');
             $table->string('folder');
             $table->timestamps();
-
-            $table->foreign('program_id')->references('program_id')->on('program')->onDelete('cascade');
+            $table->timestamp('deleted_at')->nullable();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('file');
+        Schema::dropIfExists('file_backup');
     }
 };

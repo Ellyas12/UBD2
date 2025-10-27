@@ -11,7 +11,19 @@
         <a href="{{ route('program') }}" class="{{ request()->routeIs('program') ? 'active' : '' }}">
           <span class="material-icons">science</span> Penelitian & PKM
         </a>
-    
+
+        @if(auth()->check() && (auth()->user()->posisi === 'Dekan'))
+        <a href="{{ route('dekan') }}" class="{{ request()->routeIs('dekan') ? 'active' : '' }}">
+          <span class="material-icons">science</span> Dekan
+        </a>
+        @endif
+
+        @if(auth()->check() && (auth()->user()->posisi === 'Kaprodi'))
+        <a href="{{ route('kaprodi') }}" class="{{ request()->routeIs('kaprodi') ? 'active' : '' }}">
+          <span class="material-icons">science</span> Kaprodi
+        </a>  
+        @endif
+
         <a href="{{ route('profile') }}" class="{{ request()->routeIs('profile') ? 'active' : '' }}">
           <span class="material-icons">person</span> Profile
         </a>

@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class Program extends Model
 {
@@ -27,8 +30,11 @@ class Program extends Model
         'sumber_biaya',
         'dosen_id',
         'pertemuan_id',
+        'linkweb',
         'deskripsi',
-        'linkpdf',
+        'status',
+        'stamp',
+        'comment'
     ];
 
     public function dosen()
@@ -39,5 +45,15 @@ class Program extends Model
     public function pertemuan()
     {
         return $this->belongsTo(Pertemuan::class, 'pertemuan_id', 'pertemuan_id');
+    }
+
+    public function files()
+    {
+        return $this->hasMany(File::class, 'program_id', 'program_id');
+    }
+
+    public function stampRecord()
+    {
+        return $this->hasOne(Stamp::class, 'program_id', 'program_id');
     }
 }

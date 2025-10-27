@@ -41,7 +41,6 @@ class ForgotPasswordController extends Controller
         session(['password_reset_email' => $user->email]);
         session()->forget('password_reset_verified'); // clear old verification
 
-        // Send email
         Mail::raw("Your password reset code is: $code", function ($message) use ($user) {
             $message->to($user->email)
                     ->subject('Password Reset Code');
@@ -50,9 +49,6 @@ class ForgotPasswordController extends Controller
         return redirect()->route('verify.form');
     }
 
-    /**
-     * Show verify code form
-     */
     public function showVerifyForm()
     {
         $email = session('password_reset_email');

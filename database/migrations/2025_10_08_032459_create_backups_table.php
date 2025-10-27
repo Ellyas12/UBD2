@@ -8,8 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('program', function (Blueprint $table) {
-            $table->id('program_id');
+        Schema::create('program_backup', function (Blueprint $table) {
+            $table->id('backup_id');
+
+            $table->unsignedBigInteger('program_id')->nullable();
             $table->string('jenis', 100);
             $table->string('bidang', 100);
             $table->string('topik', 100);
@@ -20,25 +22,19 @@ return new class extends Migration
             $table->string('biaya', 100)->nullable();
             $table->string('sumber_biaya', 100)->nullable();
             $table->string('linkweb', 100)->nullable();
+            $table->text('deskripsi')->nullable();
             $table->enum('status', ['Pending', 'Accepted', 'Denied', 'Revisi'])->default('Pending');
             $table->enum('stamp', ['Done', 'Not yet'])->default('Not yet');
-
-            $table->text('deskripsi')->nullable();
+            $table->text('comment',100)->nullable(); 
 
             $table->unsignedBigInteger('dosen_id')->nullable();
             $table->unsignedBigInteger('pertemuan_id')->nullable();
 
-            $table->foreign('dosen_id')
-                  ->references('dosen_id')
-                  ->on('dosen')
-                  ->onDelete('set null');
+            // Track backup info
+            $table->timestamp('deleted_at')->useCurrent();
+            $table->string('deleted_by')->nullable();
 
-            $table->foreign('pertemuan_id')
-                  ->references('pertemuan_id')
-                  ->on('pertemuan')
-                  ->onDelete('set null');
-
-            $table->timestamps(); // created_at & updated_at
+            $table->timestamps();
         });
     }
 
@@ -47,6 +43,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('program');
+        Schema::dropIfExists('program_backup');
     }
 };

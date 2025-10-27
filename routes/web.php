@@ -6,6 +6,9 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\HomeController;
 use App\Http\Controllers\Auth\PenelitianController;
 use App\Http\Controllers\Auth\PkmController;
+use App\Http\Controllers\Auth\KaprodiController;
+use App\Http\Controllers\Auth\DekanController;
+use App\Http\Controllers\Auth\DosenController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\ProgramController;
 use App\Http\Controllers\Auth\SettingsController;
@@ -38,11 +41,35 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::middleware('role:Lecturer')->group(function () {
-        Route::get('/home', [HomeController::class, 'index'])->name('lecturer.home');
+    Route::get('/home', [HomeController::class, 'index'])->name('lecturer.home');
+    Route::get('/dosen/{id}', [DosenController::class, 'show'])->name('dosen.profile');
 
+    Route::get('/kaprodi', [KaprodiController::class, 'index'])->name('kaprodi');
+    Route::get('/kaprodi/stamp/{id}', [KaprodiController::class, 'showStampPage'])->name('kaprodi.stamp.show');
+    Route::post('/kaprodi/stamp/{id}/confirm', [KaprodiController::class, 'confirmStamp'])->name('kaprodi.stamp.confirm');
 
-        Route::get('/program', [ProgramController::class, 'index'])->name('program');
-        Route::post('/program/create', [ProgramController::class, 'store'])->name('program.create');
+    Route::get('/dekan', [DekanController::class, 'index'])->name('dekan');
+    Route::get('/dekan/review/{program_id}', [DekanController::class, 'showReviewPage'])->name('dekan.review');
+    Route::post('/dekan/review/{program_id}', [DekanController::class, 'submitReview'])->name('dekan.submitReview');
+
+    // 🧩 List all programs
+    Route::get('/program', [ProgramController::class, 'index'])->name('program');
+
+    // 🧩 Show create form (GET)
+    Route::get('/program/create', [ProgramController::class, 'createProgram'])->name('program.createProgram');
+
+    // 🧩 Submit create form (POST)
+    Route::post('/program/create', [ProgramController::class, 'store'])->name('program.create');
+
+    // 🧩 View / edit / delete actions
+    Route::get('/program/view/{id}', [ProgramController::class, 'view'])->name('program.view');
+    Route::get('/program/edit/{id}', [ProgramController::class, 'edit'])->name('program.edit');
+    Route::put('/program/update/{id}', [ProgramController::class, 'update'])->name('program.update');
+
+    Route::delete('/program/file/{file_id}', [ProgramController::class, 'deleteFile'])->name('program.file.delete');
+    Route::get('/program/delete/{id}', [ProgramController::class, 'confirmDelete'])->name('program.confirmDelete');
+    Route::delete('/program/{id}', [ProgramController::class, 'destroy'])->name('program.destroy');
+
 
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::post('/profile/remove-picture', [ProfileController::class, 'removePicture'])
