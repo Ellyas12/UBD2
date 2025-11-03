@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Profile | UBD</title>
   <link rel="stylesheet" href="{{ asset('css/Lprofile.css') }}">
+  <script src="{{ asset('js/Block.js') }}"></script>
 </head>
 <body>
   <div class="dashboard-container">
@@ -66,25 +67,56 @@
               <input type="email" name="email" placeholder="Email" 
                      value="{{ $user->email }}" readonly class="readonly-field">
 
-              <select name="fakultas_id" required>
-                <option value="">-- Pilih Fakultas --</option>
-                @foreach($fakultasList as $fakultas)
-                  <option value="{{ $fakultas->fakultas_id }}"
-                    {{ old('fakultas_id', $dosen->fakultas_id ?? '') == $fakultas->fakultas_id ? 'selected' : '' }}>
-                    {{ $fakultas->nama }}
-                  </option>
-                @endforeach
-              </select>
+              <div class="form-group">
+                <label for="fakultas_id">Fakultas</label>
 
-              <select name="jabatan_id" required>
-                <option value="">-- Pilih Jabatan --</option>
-                @foreach($jabatanList as $jabatan)
-                  <option value="{{ $jabatan->jabatan_id }}"
-                    {{ old('jabatan_id', $dosen->jabatan_id ?? '') == $jabatan->jabatan_id ? 'selected' : '' }}>
-                    {{ $jabatan->nama }}
-                  </option>
-                @endforeach
-              </select>
+                @php
+                    $selectedFakultas = old('fakultas_id', $dosen->fakultas_id ?? '');
+                @endphp
+
+                <select id="fakultas_id"
+                        name="fakultas_id"
+                        {{ $selectedFakultas ? 'disabled' : '' }}
+                        required>
+                    <option value="">-- Pilih Fakultas --</option>
+                    @foreach($fakultasList as $fakultas)
+                        <option value="{{ $fakultas->fakultas_id }}"
+                            {{ $selectedFakultas == $fakultas->fakultas_id ? 'selected' : '' }}>
+                            {{ $fakultas->nama }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Send hidden only if select is disabled AND not null --}}
+                @if($selectedFakultas)
+                    <input type="hidden" name="fakultas_id" value="{{ $selectedFakultas }}">
+                @endif
+              </div>
+
+              <div class="form-group">
+                <label for="jabatan_id">Jabatan</label>
+
+                @php
+                    $selectedJabatan = old('jabatan_id', $dosen->jabatan_id ?? '');
+                @endphp
+
+                <select id="jabatan_id"
+                        name="jabatan_id"
+                        {{ $selectedJabatan ? 'disabled' : '' }}
+                        required>
+                    <option value="">-- Pilih Jabatan --</option>
+                    @foreach($jabatanList as $jabatan)
+                        <option value="{{ $jabatan->jabatan_id }}"
+                            {{ $selectedJabatan == $jabatan->jabatan_id ? 'selected' : '' }}>
+                            {{ $jabatan->nama }}
+                        </option>
+                    @endforeach
+                </select>
+
+                @if($selectedJabatan)
+                    <input type="hidden" name="jabatan_id" value="{{ $selectedJabatan }}">
+                @endif
+              </div>
 
               <input type="text" name="telepon" placeholder="Nomor Telpon" 
                      value="{{ old('telepon', $dosen->telp ?? '') }}">
@@ -183,7 +215,7 @@
                   <td>{{ $program->judul }}</td>
                   <td>{{ $program->tanggal }}</td>
                   <td>{{ $program->jenis }}</td>
-                  <td>{{ $program->ketua }}</td>
+                  <td>{{ $program->ketua->dosen->nama ?? '-' }}</td>
                   <td>{{ $program->status }}</td>
                   <td>{{ $program->stamp }}</td>
                 <td>

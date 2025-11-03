@@ -46,6 +46,43 @@
 
     <hr>
 
+    {{-- Revision Programs --}}
+    <div class="program-section">
+        <h2>🟠 Program Perlu Revisi</h2>
+        @if($revision->isEmpty())
+            <p>Tidak ada program yang perlu revisi.</p>
+        @else
+        <table class="program-table">
+            <thead>
+                <tr>
+                    <th>Judul</th>
+                    <th>Ketua</th>
+                    <th>Tanggal</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($revision as $program)
+                    <tr>
+                        <td>{{ $program->judul }}</td>
+                        <td>{{ $program->dosen->nama ?? '-' }}</td>
+                        <td>{{ $program->tanggal }}</td>
+                        <td><span class="badge bg-warning text-dark">Revisi</span></td>
+                        <td>
+                            <a href="{{ route('dekan.review', $program->program_id) }}" class="btn btn-primary">
+                                🔄 Update Review
+                            </a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @endif
+    </div>
+
+    <hr>
+
     {{-- Reviewed Programs --}}
     <div class="program-section">
         <h2>🟢 Program Telah Direview</h2>
@@ -68,15 +105,14 @@
                         <td>{{ $program->dosen->nama ?? '-' }}</td>
                         <td>{{ $program->tanggal }}</td>
                         <td>
-                          @if($program->status == 'Accepted')
-                              <span class="badge bg-success">Accepted</span>
-                          @elseif($program->status == 'Denied')
-                              <span class="badge bg-danger">Denied</span>
-                          @elseif($program->status == 'Revisi') {{-- ✅ updated --}}
-                              <span class="badge bg-warning text-dark">Revisi</span>
-                          @else
-                              <span class="badge bg-secondary">{{ $program->status }}</span>
-                          @endif
+                            @if($program->status == 'Accepted')
+                                <span class="badge bg-success">Accepted</span>
+                                <a href="{{ route('dekan.review', $program->program_id) }}" class="btn btn-secondary btn-sm ms-2">👁️ View</a>
+                            @elseif($program->status == 'Denied')
+                                <span class="badge bg-danger">Denied</span>
+                            @else
+                                <span class="badge bg-secondary">{{ $program->status }}</span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

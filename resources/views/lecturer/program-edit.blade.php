@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <title>Edit Program | UBD</title>
   <link rel="stylesheet" href="{{ asset('css/Lprogram.css') }}">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+  <script src="{{ asset('js/Lprogram.js') }}"></script>
+  <script src="{{ asset('js/Block.js') }}"></script>
 </head>
 <body>
   <div class="dashboard-container">
@@ -46,8 +52,32 @@
 
         <!-- Step 2 -->
         <div class="form-step" id="step-2">
-          <input type="text" name="ketua" placeholder="Ketua" value="{{ $program->ketua }}" required>
-          <textarea name="anggota" placeholder="Anggota (pisahkan dengan koma)">{{ $program->anggota }}</textarea>
+<!-- Ketua -->
+<div class="form-group mb-3">
+    <label for="ketua_id">Ketua</label>
+    <select name="ketua_id" id="ketua_id" class="form-control" required>
+        <option value="">-- Pilih Ketua --</option>
+        @foreach ($dosenList as $d)
+            <option value="{{ $d->dosen_id }}" 
+                {{ ($program->ketua && $program->ketua->dosen_id == $d->dosen_id) ? 'selected' : '' }}>
+                {{ $d->nama }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
+<!-- Anggota -->
+<div class="form-group mb-3">
+    <label for="anggota_ids">Anggota</label>
+    <select name="anggota_ids[]" id="anggota_ids" class="form-control" multiple>
+        @foreach ($dosenList as $d)
+            <option value="{{ $d->dosen_id }}"
+                {{ $program->anggota->pluck('dosen_id')->contains($d->dosen_id) ? 'selected' : '' }}>
+                {{ $d->nama }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
           <select name="pertemuan_id" required>
             <option value="">-- Pilih Pertemuan --</option>
@@ -64,31 +94,28 @@
           <textarea name="linkweb" placeholder="Web link">{{ $program->linkweb }}</textarea>
           <textarea name="deskripsi" placeholder="Deskripsi">{{ $program->deskripsi }}</textarea>
 
+          <h3>Existing Files</h3>
+          <ul id="existingFiles">
+            @foreach($program->files as $file)
+              <li data-id="{{ $file->file_id }}">
+                <a href="{{ asset('storage/' . $file->file) }}" target="_blank">{{ $file->nama }}</a>
+                <button type="button" class="markDeleteBtn">❌ Remove</button>
+              </li>
+            @endforeach
+          </ul>
 
+          <input type="hidden" name="deleted_files" id="deleted_files" value="">
 
-<h3>Existing Files</h3>
-<ul id="existingFiles">
-  @foreach($program->files as $file)
-    <li data-id="{{ $file->file_id }}">
-      <a href="{{ asset('storage/' . $file->file) }}" target="_blank">{{ $file->nama }}</a>
-      <button type="button" class="markDeleteBtn">❌ Remove</button>
-    </li>
-  @endforeach
-</ul>
-
-<input type="hidden" name="deleted_files" id="deleted_files" value="">
-
-<div id="dropZone">
-  <span id="fileLabel">Upload file baru (opsional, maksimal 5 file)</span>
-  <input type="file"
-        id="fileInput"
-        name="linkpdf[]"
-        multiple
-        accept=".pdf,.doc,.docx,.zip,.jpg,.jpeg,.png"
-        style="display:none;">
-  <ul id="fileList"></ul>
-</div>
-
+          <div id="dropZone">
+            <span id="fileLabel">Upload file baru (opsional, maksimal 5 file)</span>
+            <input type="file"
+                  id="fileInput"
+                  name="linkpdf[]"
+                  multiple
+                  accept=".pdf,.doc,.docx,.zip,.jpg,.jpeg,.png"
+                  style="display:none;">
+            <ul id="fileList"></ul>
+          </div>
           <div class="form-navigation">
             <button type="button" class="btn-submit" onclick="prevStep()">Back</button>
             <button type="submit" class="btn-submit">💾 Simpan Perubahan</button>
@@ -97,26 +124,5 @@
       </form>
     </div>
   </div>
-
-  <script src="{{ asset('js/Lprogram.js') }}"></script>
-  <script>
-const deletedFilesInput = document.getElementById('deleted_files');
-const existingFilesList = document.getElementById('existingFiles');
-let deletedFiles = [];
-
-existingFilesList?.addEventListener('click', function (e) {
-  if (e.target.classList.contains('markDeleteBtn')) {
-    const li = e.target.closest('li');
-    const fileId = li.dataset.id;
-
-    // Remove visually
-    li.remove();
-
-    // Mark for deletion
-    deletedFiles.push(fileId);
-    deletedFilesInput.value = deletedFiles.join(',');
-  }
-});
-</script>
 </body>
 </html>

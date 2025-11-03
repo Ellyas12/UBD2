@@ -25,8 +25,15 @@
         <p><strong>Jenis:</strong> {{ $program->jenis }}</p>
         <p><strong>Bidang:</strong> {{ $program->bidang }}</p>
         <p><strong>Topik:</strong> {{ $program->topik }}</p>
-        <p><strong>Ketua:</strong> {{ $program->ketua }}</p>
-        <p><strong>Anggota:</strong> {{ $program->anggota ?? '-' }}</p>
+        <p><strong>Ketua:</strong> {{ $program->ketua->dosen->nama ?? '-' }}</p>
+        <p><strong>Anggota:</strong> 
+            @if ($program->anggota->isNotEmpty())
+              @foreach ($program->anggota as $anggota)
+                {{ $anggota->dosen->nama ?? '-' }}<br>
+              @endforeach
+            @else
+              -
+            @endif</p>
         <p><strong>Tanggal:</strong> {{ $program->tanggal }}</p>
         <p><strong>Biaya:</strong> {{ $program->biaya }}</p>
         <p><strong>Sumber Biaya:</strong> {{ $program->sumber_biaya }}</p>

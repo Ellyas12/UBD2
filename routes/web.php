@@ -52,23 +52,21 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     Route::get('/dekan/review/{program_id}', [DekanController::class, 'showReviewPage'])->name('dekan.review');
     Route::post('/dekan/review/{program_id}', [DekanController::class, 'submitReview'])->name('dekan.submitReview');
 
-    // 🧩 List all programs
     Route::get('/program', [ProgramController::class, 'index'])->name('program');
-
-    // 🧩 Show create form (GET)
     Route::get('/program/create', [ProgramController::class, 'createProgram'])->name('program.createProgram');
-
-    // 🧩 Submit create form (POST)
     Route::post('/program/create', [ProgramController::class, 'store'])->name('program.create');
-
+    Route::get('/program/search-dosen', [ProgramController::class, 'searchDosen'])->name('program.searchDosen');
+    
     // 🧩 View / edit / delete actions
     Route::get('/program/view/{id}', [ProgramController::class, 'view'])->name('program.view');
     Route::get('/program/edit/{id}', [ProgramController::class, 'edit'])->name('program.edit');
     Route::put('/program/update/{id}', [ProgramController::class, 'update'])->name('program.update');
 
-    Route::delete('/program/file/{file_id}', [ProgramController::class, 'deleteFile'])->name('program.file.delete');
     Route::get('/program/delete/{id}', [ProgramController::class, 'confirmDelete'])->name('program.confirmDelete');
     Route::delete('/program/{id}', [ProgramController::class, 'destroy'])->name('program.destroy');
+
+    Route::get('/program/restore', [ProgramController::class, 'restoreProgram'])->name('program.restoreProgram');
+    Route::post('/program/restore/{id}', [ProgramController::class, 'restore'])->name('program.restore');
 
 
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');

@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="{{ asset('js/BlockAuth.js') }}"></script>
     
 <aside class="sidebar">
     <img src="{{ asset('images/ubd-logo.png') }}" alt="UBD Logo">
@@ -27,16 +28,12 @@
         <a href="{{ route('profile') }}" class="{{ request()->routeIs('profile') ? 'active' : '' }}">
           <span class="material-icons">person</span> Profile
         </a>
-
-        <a href="{{ route('settings') }}" class="{{ request()->routeIs('settings') ? 'active' : '' }}">
-          <span class="material-icons">settings</span> Settings
-        </a>
     </nav>
 
     <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-    @csrf
-        <button type="submit" class="logout">
-          <span class="material-icons">logout</span> Logout >>>
-        </button>
+      @csrf
+      <button type="submit" class="logout">
+        <span class="material-icons">logout</span> Logout >>>
+      </button>
     </form>
 </aside>

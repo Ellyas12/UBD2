@@ -22,21 +22,23 @@ class DekanController extends Controller
             return redirect()->route('lecturer.home')->with('error', 'Data dosen tidak ditemukan.');
         }
 
-        // Only show programs that have already been stamped (stamp = 'Done')
-        $programs = Program::where('stamp', 'Done')
-            ->whereHas('dosen', function ($query) use ($dekan) {
+        // === Get programs from same faculty ===
+        $programs = Program::whereHas('dosen', function ($query) use ($dekan) {
                 $query->where('fakultas_id', $dekan->fakultas_id);
             })
             ->with('dosen')
             ->orderBy('tanggal', 'desc')
             ->get();
 
-        // Separate programs based on their review status
-        $pending = $programs->where('status', 'Pending');
-        $processed = $programs->whereIn('status', ['Accepted', 'Denied', 'Revisi']);
+        // === Separate by categories ===
+        // 1️⃣ Pending & Processed should still require stamp = 'Done'
+        $pending = $programs->where('stamp', 'Done')->where('status', 'Pending');
+        $processed = $programs->where('stamp', 'Done')->whereIn('status', ['Accepted', 'Denied']);
+        $revision = $programs->where('status', 'Revisi');
 
-        return view('lecturer.dekan', compact('pending', 'processed'));
+        return view('lecturer.dekan', compact('pending', 'revision', 'processed'));
     }
+
 
     /**
      * Show the review form for a specific program.
@@ -44,13 +46,9 @@ class DekanController extends Controller
     public function showReviewPage($program_id)
     {
         $program = Program::with('dosen')->findOrFail($program_id);
+        $isEditable = ($program->stamp === 'Done' && $program->status === 'Revisi');
 
-        // Ensure only stamped programs can be reviewed
-        if ($program->stamp !== 'Done') {
-            return redirect()->route('dekan')->with('error', 'Program ini belum di-stamp oleh Kaprodi.');
-        }
-
-        return view('lecturer.dekan-terima', compact('program'));
+        return view('lecturer.dekan-terima', compact('program', 'isEditable'));
     }
 
     /**
@@ -72,20 +70,39 @@ class DekanController extends Controller
         }
 
         // Only allow review if program has been stamped
-        if ($program->stamp !== 'Done') {
+        if ($program->stamp !== 'Done' && $program->status !== 'Revisi') {
             return redirect()->route('dekan')->with('error', 'Program ini belum di-stamp oleh Kaprodi.');
         }
 
-        // Update the program's review status
-        $program->update(['status' => $request->status]);
+        // === Update program's status and stamp ===
+        $updateData = ['status' => $request->status];
 
-        // Create a comment record for this review
-        Comment::create([
-            'program_id' => $program->program_id,
-            'dosen_id'   => $dosen->dosen_id,
-            'content'    => $request->content,
-        ]);
+        if ($request->status === 'Revisi') {
+            $updateData['stamp'] = 'Not Yet';
+        }
+
+        $program->update($updateData);
+
+        // === Update or create comment ===
+        $existingComment = Comment::where('program_id', $program->program_id)
+            ->where('dosen_id', $dosen->dosen_id)
+            ->first();
+
+        if ($existingComment) {
+            // Update the existing comment
+            $existingComment->update([
+                'content' => $request->content,
+            ]);
+        } else {
+            // Create a new comment
+            Comment::create([
+                'program_id' => $program->program_id,
+                'dosen_id'   => $dosen->dosen_id,
+                'content'    => $request->content,
+            ]);
+        }
 
         return redirect()->route('dekan')->with('success', 'Review berhasil dikirim dan status program diperbarui.');
     }
+
 }

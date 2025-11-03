@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Hapus Program | UBD</title>
   <link rel="stylesheet" href="{{ asset('css/Lprogram.css') }}">
+  <script src="{{ asset('js/Block.js') }}"></script>
 </head>
 <body>
   <div class="dashboard-container">
@@ -25,8 +26,15 @@
         <p><strong>Jenis:</strong> {{ $program->jenis }}</p>
         <p><strong>Bidang:</strong> {{ $program->bidang }}</p>
         <p><strong>Topik:</strong> {{ $program->topik }}</p>
-        <p><strong>Ketua:</strong> {{ $program->ketua }}</p>
-        <p><strong>Anggota:</strong> {{ $program->anggota ?? '-' }}</p>
+        <p><strong>Ketua:</strong> {{ $program->ketua->dosen->nama ?? '-' }}</p>
+        <p><strong>Anggota:</strong> 
+          @if ($program->anggota->isNotEmpty())
+            @foreach ($program->anggota as $anggota)
+              {{ $anggota->dosen->nama ?? '-' }}<br>
+            @endforeach
+          @else
+            -
+          @endif</p>
         <p><strong>Tanggal:</strong> {{ $program->tanggal }}</p>
         <p><strong>Biaya:</strong> {{ $program->biaya }}</p>
         <p><strong>Sumber Biaya:</strong> {{ $program->sumber_biaya }}</p>
@@ -60,7 +68,7 @@
         @method('DELETE')
 
         <div class="form-navigation">
-          <a href="{{ route('profile') }}" class="btn-cancel">Batal</a>
+          <a href="{{ route('program') }}" class="btn-cancel">Batal</a>
           <button type="submit" class="btn-danger">🗑️ Hapus Program</button>
         </div>
       </form>

@@ -7,13 +7,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\Pertemuan;
 use App\Models\Dosen;
+use App\Models\Anggota;
+use App\Models\Ketua;
 use App\Models\File;
-use App\Models\FileBackup;
 use App\Models\ProgramBackup;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File as FileFacade;
+use Illuminate\Support\Str;
 
 class ProgramController extends Controller
 {
@@ -38,8 +41,33 @@ class ProgramController extends Controller
     public function createProgram()
     {
         $pertemuanList = Pertemuan::all();
-        return view('lecturer.program-create', compact('pertemuanList'));
+        $dosenList = Dosen::all();
+        return view('lecturer.program-create', compact('pertemuanList', 'dosenList'));
     }
+
+    public function searchDosen(Request $request)
+    {
+        $query = $request->get('q', '');
+        $excludeIds = $request->get('exclude', []); // array of dosen_id to exclude
+
+        $results = Dosen::join('users', 'dosen.user_id', '=', 'users.user_id')
+                        ->where(function ($q2) use ($query) {
+                            $q2->where('dosen.nama', 'like', "%{$query}%")
+                            ->orWhere('users.nidn', 'like', "%{$query}%");
+                        })
+                        ->when(!empty($excludeIds), function ($q2) use ($excludeIds) {
+                            $q2->whereNotIn('dosen.dosen_id', $excludeIds);
+                        })
+                        ->limit(20)
+                        ->get([
+                            'dosen.dosen_id',
+                            'dosen.nama',
+                            'users.nidn',
+                        ]);
+
+        return response()->json($results);
+    }
+
 
     public function store(Request $request)
     {
@@ -58,16 +86,17 @@ class ProgramController extends Controller
             'bidang'        => 'required|string|max:255',
             'topik'         => 'required|string|max:255',
             'judul'         => 'required|string|max:255',
-            'ketua'         => 'required|string|max:255',
-            'anggota'       => 'nullable|string',
+            'ketua_id'      => 'required|exists:dosen,dosen_id',
+            'anggota_ids'   => 'nullable|array',
+            'anggota_ids.*' => 'exists:dosen,dosen_id',
             'tanggal'       => 'required|date',
             'biaya'         => 'required|numeric',
             'sumber_biaya'  => 'required|string|max:255',
             'pertemuan_id'  => 'required|exists:pertemuan,pertemuan_id',
             'deskripsi'     => 'nullable|string',
             'linkweb'       => 'nullable|string',
-            'linkpdf'       => 'nullable|array|max:5', // max 5 files
-            'linkpdf.*'     => 'nullable|file|mimes:pdf,doc,docx,zip,jpg,jpeg,png|max:5120', // each ≤5MB
+            'linkpdf'       => 'nullable|array|max:5',
+            'linkpdf.*'     => 'nullable|file|mimes:pdf,doc,docx,zip,jpg,jpeg,png|max:5120', // ≤5MB
         ]);
 
         // ✅ Check total file size (≤10MB)
@@ -77,19 +106,16 @@ class ProgramController extends Controller
                 $totalSize += $file->getSize();
             }
         }
-
-        if ($totalSize > 10 * 1024 * 1024) { // 10MB
+        if ($totalSize > 10 * 1024 * 1024) {
             return back()->with('error', 'Total ukuran semua file tidak boleh melebihi 10MB.')->withInput();
         }
 
-        // ✅ Create program
+        // ✅ Create the Program
         $program = Program::create([
             'jenis'        => $request->jenis,
             'bidang'       => $request->bidang,
             'topik'        => $request->topik,
             'judul'        => $request->judul,
-            'ketua'        => $request->ketua,
-            'anggota'      => $request->anggota,
             'tanggal'      => $request->tanggal,
             'biaya'        => $request->biaya,
             'sumber_biaya' => $request->sumber_biaya,
@@ -99,17 +125,31 @@ class ProgramController extends Controller
             'dosen_id'     => $dosen->dosen_id,
         ]);
 
-        // ✅ Handle multiple file uploads
+        // ✅ Save Ketua (leader)
+        Ketua::create([
+            'program_id' => $program->program_id,
+            'dosen_id'   => $request->ketua_id,
+        ]);
+
+        // ✅ Save Anggota (members)
+        if ($request->filled('anggota_ids')) {
+            foreach ($request->anggota_ids as $anggotaId) {
+                Anggota::create([
+                    'program_id' => $program->program_id,
+                    'dosen_id'   => $anggotaId,
+                ]);
+            }
+        }
+
+        // ✅ Handle file uploads
         if ($request->hasFile('linkpdf')) {
             $folderPath = 'program_files/' . $program->program_id;
 
             foreach ($request->file('linkpdf') as $uploadedFile) {
                 $filename = time() . '_' . uniqid() . '.' . $uploadedFile->getClientOriginalExtension();
 
-                // Store file in storage/app/public/program_files/{program_id}
                 $uploadedFile->storeAs($folderPath, $filename, 'public');
 
-                // Save file record in database
                 File::create([
                     'program_id' => $program->program_id,
                     'nama'       => $uploadedFile->getClientOriginalName(),
@@ -120,8 +160,7 @@ class ProgramController extends Controller
         }
 
         return redirect()->route('program')
-            ->with('success', 'Program dan file berhasil ditambahkan!');
-            dd($request->file('linkpdf'));
+            ->with('success', 'Program, ketua, dan anggota berhasil ditambahkan!');
     }
 
     public function view($id)
@@ -134,10 +173,11 @@ class ProgramController extends Controller
 
     public function edit($id)
     {
-        $program = Program::with('files')->findOrFail($id);
+        $program = Program::with('files', 'ketua.dosen', 'anggota.dosen')->findOrFail($id);
         $pertemuanList = Pertemuan::all();
+        $dosenList = Dosen::all();
 
-        return view('lecturer.program-edit', compact('program', 'pertemuanList'));
+        return view('lecturer.program-edit', compact('program', 'pertemuanList', 'dosenList'));
     }
 
     public function update(Request $request, $id)
@@ -149,8 +189,9 @@ class ProgramController extends Controller
             'bidang'        => 'required|string|max:255',
             'topik'         => 'required|string|max:255',
             'judul'         => 'required|string|max:255',
-            'ketua'         => 'required|string|max:255',
-            'anggota'       => 'nullable|string',
+            'ketua_id'      => 'required|exists:dosen,dosen_id',
+            'anggota_ids'   => 'nullable|array',
+            'anggota_ids.*' => 'exists:dosen,dosen_id',
             'tanggal'       => 'required|date',
             'biaya'         => 'required|numeric',
             'sumber_biaya'  => 'required|string|max:255',
@@ -160,9 +201,25 @@ class ProgramController extends Controller
             'linkpdf.*'     => 'nullable|file|mimes:pdf,doc,docx,zip,jpg,jpeg,png|max:5120',
         ]);
 
+        // ✅ Save Ketua (leader)
+        Ketua::updateOrCreate([
+            'program_id' => $program->program_id,
+            'dosen_id'   => $request->ketua_id,
+        ]);
+
+        Anggota::where('program_id', $program->program_id)->delete(); // clear old anggota
+        if ($request->anggota_ids) {
+            foreach ($request->anggota_ids as $anggotaId) {
+                Anggota::create([
+                    'program_id' => $program->program_id,
+                    'dosen_id'   => $anggotaId,
+                ]);
+            }
+        }
+
         // ✅ Update program info
         $program->update($request->only([
-            'jenis', 'bidang', 'topik', 'judul', 'ketua', 'anggota', 
+            'jenis', 'bidang', 'topik', 'judul', 'ketua_id', 'anggota_ids', 
             'tanggal', 'biaya', 'sumber_biaya', 'pertemuan_id', 'linkweb', 'deskripsi'
         ]));
 
@@ -200,36 +257,6 @@ class ProgramController extends Controller
             ->with('success', 'Program updated successfully! You can continue editing below.');
     }
 
-    public function deleteFile($file_id)
-    {
-        $file = File::findOrFail($file_id);
-
-        // ✅ Backup file record to file_backup table
-        FileBackup::create([
-            'program_id' => $file->program_id,
-            'nama'       => $file->nama,
-            'file'       => $file->file,
-            'folder'     => $file->folder,
-            'created_at' => now(),
-            'updated_at' => now(),
-            'deleted_at' => now(),
-        ]);
-
-        // ✅ Copy actual file to backup folder (in public/storage/backups/)
-        $originalFile = 'public/' . $file->file;
-        $backupFile = 'public/backups/files_' . $file->file_id . '_' . now()->format('YmdHis') . '/' . basename($file->file);
-
-        if (Storage::exists($originalFile)) {
-            Storage::copy($originalFile, $backupFile);
-            Storage::delete($originalFile);
-        }
-
-        // ✅ Delete record from main file table
-        $file->delete();
-
-        return back()->with('success', 'File telah dipindahkan ke backup dan dihapus dari daftar utama!');
-    }
-
     public function confirmDelete($id)
     {
         $program = Program::findOrFail($id);
@@ -238,57 +265,141 @@ class ProgramController extends Controller
 
     public function destroy($id)
     {
-        $program = Program::findOrFail($id);
+        $program = Program::with('files')->findOrFail($id);
 
         DB::beginTransaction();
 
         try {
-            // 🗂 Define real folder paths (directly under public/storage)
             $programFolder = public_path("storage/program_files/{$program->program_id}");
-            $backupFolder  = public_path("storage/backups/folder_{$program->program_id}_" . now()->format('YmdHis'));
+            $timestamp = now()->format('Ymd_His');
+            $backupFolder = public_path("storage/backups/program_{$program->program_id}_{$timestamp}");
 
-            // 🧭 Create the backups folder if needed
-            FileFacade::ensureDirectoryExists(dirname($backupFolder));
-
-            // 🪶 Move the physical folder
-            if (file_exists($programFolder)) {
-                FileFacade::move($programFolder, $backupFolder);
+            // Ensure backup directory exists
+            if (!FileFacade::exists(public_path('storage/backups'))) {
+                FileFacade::makeDirectory(public_path('storage/backups'), 0755, true);
             }
 
-            // 🧾 Create Program backup entry
-            $programBackup = ProgramBackup::create($program->toArray());
-
-            // 📂 Backup each related file
-            foreach ($program->files as $file) {
-                // Get old path (relative from public/storage)
-                $oldFilePath = $file->file;
-
-                // Build new relative path (replacing "program_files/" with "backups/")
-                $newFilePath = str_replace('program_files/', 'backups/', $oldFilePath);
-
-                FileBackup::create([
-                    'program_id' => $file->program_id,
-                    'nama'       => $file->nama,
-                    'file'       => $newFilePath, // ✅ new path now points to backups
-                    'folder'     => 'backups',    // optional reference
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+            // Move program folder if exists, otherwise create an empty backup folder
+            if (FileFacade::exists($programFolder)) {
+                FileFacade::moveDirectory($programFolder, $backupFolder);
+            } else {
+                FileFacade::makeDirectory($backupFolder, 0755, true);
             }
 
-            // 🧹 Clean up database
-            $program->files()->delete();
+            ProgramBackup::create([
+                'program_id'  => $program->program_id,
+                'backup_code' => 'BK-' . strtoupper(uniqid()),
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
+
+            if ($program->files && $program->files->isNotEmpty()) {
+                foreach ($program->files as $file) {
+                    $oldPath = $file->file;
+                    $newPath = str_replace(
+                        "program_files/{$program->program_id}",
+                        "backups/program_{$program->program_id}_{$timestamp}",
+                        $oldPath
+                    );
+                    $file->update(['file' => $newPath]);
+                }
+            }
+
             $program->delete();
 
             DB::commit();
 
-            return redirect()
-                ->route('program')
-                ->with('success', 'Program and files successfully backed up to /public/storage/backups/.');
-
-        } catch (\Exception $e) {
+            return redirect('/program')->with('success', 'Program berhasil dibackup dan dipindahkan ke folder backup.');
+        } 
+        catch (\Exception $e) {
             DB::rollBack();
+            Log::error("Program backup failed: " . $e->getMessage());
             return back()->with('error', 'Backup failed: ' . $e->getMessage());
+        }
+    }
+
+    public function restoreProgram()
+    {
+        $deletedPrograms = Program::onlyTrashed()->get();
+
+        return view('lecturer.program-restore', compact('deletedPrograms'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $program = Program::onlyTrashed()->with('files')->findOrFail($id);
+
+            // 🧾 Find the most recent backup related to this program
+            $backup = ProgramBackup::where('program_id', $program->program_id)
+                                ->latest('created_at')
+                                ->first();
+
+            if (!$backup) {
+                return back()->with('error', 'Backup data tidak ditemukan untuk program ini.');
+            }
+
+            // 🗂 Define paths
+            $backupFolderPattern = public_path("storage/backups/program_{$program->program_id}_");
+            $backupFolder = collect(glob($backupFolderPattern . '*'))->sortDesc()->first();
+            $originalFolder = public_path("storage/program_files/{$program->program_id}");
+
+            // ⚙️ If the program had files, handle the folder + path restoration
+            if ($program->files && $program->files->isNotEmpty()) {
+
+                // 🧭 Ensure the backup folder exists
+                if (!$backupFolder || !FileFacade::exists($backupFolder)) {
+                    return back()->with('error', 'Folder backup tidak ditemukan untuk file program.');
+                }
+
+                // 🧱 Ensure destination parent folder exists
+                if (!FileFacade::exists(dirname($originalFolder))) {
+                    FileFacade::makeDirectory(dirname($originalFolder), 0755, true);
+                }
+
+                // 🔄 Move the backup folder back
+                FileFacade::moveDirectory($backupFolder, $originalFolder);
+
+                // 🧩 Rewrite each file path in the database
+                $backupFolderName = basename($backupFolder); 
+                // Example: "program_5_20251103_142355"
+
+                foreach ($program->files as $file) {
+                    $oldPath = $file->file;
+
+                    // Normalize slashes for safety
+                    $normalizedOldPath = str_replace('\\', '/', $oldPath);
+
+                    // Replace "backups/program_X_timestamp" with "program_files/X"
+                    $newPath = str_replace(
+                        "backups/{$backupFolderName}",
+                        "program_files/{$program->program_id}",
+                        $normalizedOldPath
+                    );
+
+                    // Update only if changed
+                    if ($newPath !== $oldPath) {
+                        $file->update(['file' => $newPath]);
+                    }
+                }
+            }
+
+            // ♻️ Restore program (undo soft delete)
+            $program->restore();
+
+            // 🧹 Remove the backup record
+            $backup->delete();
+
+            DB::commit();
+
+            return redirect()->route('program.restoreProgram')->with('success', 'Program berhasil direstore.');
+        } 
+        catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Restore failed: " . $e->getMessage());
+            return back()->with('error', 'Restore gagal: ' . $e->getMessage());
         }
     }
 }

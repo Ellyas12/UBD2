@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Program Stamping | Kaprodi</title>
   <link rel="stylesheet" href="{{ asset('css/Lprogram.css') }}">
+  <script src="{{ asset('js/Block.js') }}"></script>
 </head>
 <body>
   <div class="dashboard-container">

@@ -14,8 +14,6 @@ return new class extends Migration
             $table->string('bidang', 100);
             $table->string('topik', 100);
             $table->string('judul', 100);
-            $table->string('ketua', 100);
-            $table->string('anggota', 100)->nullable();
             $table->date('tanggal');
             $table->string('biaya', 100)->nullable();
             $table->string('sumber_biaya', 100)->nullable();

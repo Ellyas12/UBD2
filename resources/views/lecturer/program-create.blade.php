@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <title>Tambah Program | UBD</title>
   <link rel="stylesheet" href="{{ asset('css/Lprogram.css') }}">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+  <script src="{{ asset('js/Lprogram.js') }}"></script>
+  <script src="{{ asset('js/Block.js') }}"></script>
 </head>
 <body>
   <div class="dashboard-container">
@@ -45,8 +51,17 @@
 
   <!-- Step 2 -->
   <div class="form-step" id="step-2">
-    <input type="text" name="ketua" placeholder="Ketua" value="{{ old('ketua') }}" required>
-    <textarea name="anggota" placeholder="Anggota (pisahkan dengan koma)">{{ old('anggota') }}</textarea>
+    <!-- Ketua -->
+    <div class="form-group mb-3">
+        <label for="ketua_id">Ketua</label>
+        <select name="ketua_id" id="ketua_id" class="form-control" required></select>
+    </div>
+
+    <!-- Anggota -->
+    <div class="form-group mb-3">
+        <label for="anggota_ids">Anggota</label>
+        <select name="anggota_ids[]" id="anggota_ids" class="form-control" multiple></select>
+    </div>
 
     <select name="pertemuan_id" required>
       <option value="">-- Pilih Pertemuan --</option>
@@ -81,6 +96,5 @@
     </div>
   </div>
 </form>
-  <script src="{{ asset('js/Lprogram.js') }}"></script>
 </body>
 </html>

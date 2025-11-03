@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class Program extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'program';
     protected $primaryKey = 'program_id';
@@ -23,8 +24,6 @@ class Program extends Model
         'bidang',
         'topik',
         'judul',
-        'ketua',
-        'anggota',
         'tanggal',
         'biaya',
         'sumber_biaya',
@@ -55,5 +54,25 @@ class Program extends Model
     public function stampRecord()
     {
         return $this->hasOne(Stamp::class, 'program_id', 'program_id');
+    }
+
+        public function comments()
+    {
+        return $this->hasOne(\App\Models\Comment::class, 'program_id', 'program_id');
+    }
+
+    public function ketua()
+    {
+        return $this->hasOne(Ketua::class, 'program_id');
+    }
+
+    public function anggota()
+    {
+        return $this->hasMany(Anggota::class, 'program_id');
+    }
+
+    public function backup()
+    {
+        return $this->hasOne(ProgramBackup::class, 'program_id', 'program_id');
     }
 }

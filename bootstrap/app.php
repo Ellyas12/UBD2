@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\DeleteOldProgramBackups;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -44,14 +45,16 @@ return Application::configure(basePath: dirname(__DIR__))
             'ensure.code.verified' => \App\Http\Middleware\EnsureCodeVerified::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
 
+    ->withExceptions(function (Exceptions $exceptions) {
     })
 
+    ->withCommands([
+        DeleteOldProgramBackups::class,
+    ])
+    
     ->withSchedule(function (Schedule $schedule) {
-        // Run backup cleaner every day at midnight
-        $schedule->command('clean:backups --days=7')->daily();
+        $schedule->command('backups:clean')->daily();
     })
 
     ->create();

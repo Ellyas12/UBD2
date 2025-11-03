@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Comment extends Model
+class Anggota extends Model
 {
     use HasFactory;
-
-    protected $table = 'comment';
-    protected $primaryKey = 'comment_id';
     
+    protected $table = 'anggota';
+    protected $primaryKey = 'anggota_id';
+    public $timestamps = false;
+
     protected $fillable = [
         'program_id',
         'dosen_id',
-        'content',
     ];
 
     public function program()

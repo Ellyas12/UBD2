@@ -6,31 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProgramBackup extends Model
 {
-    protected $table = 'program_backup';
-    protected $primaryKey = 'backup_id';
+    protected $table = 'programbackup';
+    protected $primaryKey = 'programbackup_id';
+    public $timestamps = true;
     protected $fillable = [
         'program_id', 
-        'jenis', 
-        'bidang', 
-        'topik', 
-        'judul', 
-        'ketua',
-        'anggota', 
-        'tanggal', 
-        'biaya', 
-        'sumber_biaya',
-        'deskripsi',
-        'status',
-        'stamp',
-        'comment',
-        'dosen_id', 
-        'pertemuan_id',
-        'deleted_at', 
-        'deleted_by'
+        'backup_code',
+        'created_at',
+        'updated_at',
     ];
 
-    public function filesBackup()
+    public function program()
     {
-        return $this->hasMany(FileBackup::class, 'program_id', 'program_id');
+        return $this->belongsTo(Program::class, 'program_id', 'program_id')
+                    ->withTrashed(); // 👈 include soft-deleted rows
     }
 }

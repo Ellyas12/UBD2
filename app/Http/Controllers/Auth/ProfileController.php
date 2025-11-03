@@ -103,6 +103,29 @@ class ProfileController extends Controller
         return back()->with('success', 'Profile picture removed successfully!');
     }
 
+    public function updateFakultasJabatan(Request $request)
+    {
+        $request->validate([
+            'fakultas_id' => 'required|exists:fakultas,fakultas_id',
+            'jabatan_id' => 'required|exists:jabatan,jabatan_id',
+        ]);
+
+        $user = auth()->user();
+        $dosen = $user->dosen;
+
+        // 🧩 Prevent re-selection
+        if ($dosen->fakultas_id || $dosen->jabatan_id) {
+            return redirect()->back()->with('error', 'Anda sudah memilih fakultas dan jabatan, tidak dapat diubah lagi.');
+        }
+
+        $dosen->update([
+            'fakultas_id' => $request->fakultas_id,
+            'jabatan_id'  => $request->jabatan_id,
+        ]);
+
+        return redirect()->back()->with('success', 'Fakultas dan Jabatan berhasil disimpan!');
+    }
+
     // #research-info
     public function viewResearch($id)
     {
