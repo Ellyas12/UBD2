@@ -8,22 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         this.dataset.clicked = "true";
+        this.style.opacity = "0.6";
 
-        // For logout: wait a bit so the POST actually fires
         if (this.classList.contains('logout')) {
-          setTimeout(() => {
-            this.disabled = true;
-            this.innerHTML = '<span class="material-icons">logout</span> Logging out...';
-            this.style.opacity = "0.6";
-          }, 150);
+          this.innerHTML = '<span class="material-icons">logout</span> Logging out...';
+          setTimeout(() => { this.disabled = true; }, 100);
         } else {
-          this.disabled = true;
           this.innerText = 'Processing...';
-          this.style.opacity = "0.6";
+          setTimeout(() => { this.disabled = true; }, 100);
         }
       });
     });
   };
 
-  preventDoubleClick('.logout');
+  preventDoubleClick('button');
 });

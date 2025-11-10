@@ -9,6 +9,9 @@ use App\Models\Dosen;
 use App\Models\Fakultas;
 use App\Models\Jabatan;
 use App\Models\Program;
+use App\Models\Matkul;
+use App\Models\Prestasi;
+use App\Models\Matdos;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -20,18 +23,34 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();               // logged in user
-        $dosen = $user->dosen ?? null;        // fetch related dosen if exists
+        $user = auth()->user();
+        $dosen = $user->dosen ?? null;
 
+        // Static lists for dropdowns or options
         $fakultasList = Fakultas::all();
         $jabatanList = Jabatan::all();
-        $programList = collect(); // default empty list
+        $matkulList = MatKul::all();
+
+        // Initialize collections
+        $myMatkul = collect();
+        $myPrestasi = collect();
+        $programList = collect();
 
         if ($dosen) {
+            // Mata kuliah yang diajar oleh dosen ini
+            $myMatkul = Matdos::where('dosen_id', $dosen->dosen_id)
+                ->with('matkul')
+                ->get()
+                ->pluck('matkul');
+
+            // Prestasi milik dosen
+            $myPrestasi = Prestasi::where('dosen_id', $dosen->dosen_id)->get();
+
+            // Program yang terkait
             $programList = Program::where('dosen_id', $dosen->dosen_id)->get();
         }
 
-        return view('lecturer.profile', compact('user', 'dosen', 'fakultasList', 'jabatanList', 'programList'));
+        return view('lecturer.profile', compact('user','dosen','fakultasList','jabatanList','programList','matkulList','myMatkul','myPrestasi'));
     }
 
     // #personal-info
@@ -126,6 +145,122 @@ class ProfileController extends Controller
         return redirect()->back()->with('success', 'Fakultas dan Jabatan berhasil disimpan!');
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->get('q'); // must match JS key
+
+        $matkul = MataKuliah::query()
+            ->when($query, function ($q) use ($query) {
+                $q->where('nama', 'like', "%{$query}%")
+                ->orWhere('kode_matkul', 'like', "%{$query}%");
+            })
+            ->select('matkul_id', 'kode_matkul', 'nama', 'SKS')
+            ->limit(10)
+            ->get();
+
+        return response()->json($matkul);
+    }
+
+    // #academic-info
+    public function assignToDosen(Request $request)
+    {
+        $request->validate([
+            'dosen_id' => 'required|exists:dosen,dosen_id',
+            'matkul_id' => 'required|exists:matkul,matkul_id',
+        ]);
+
+        // Check if already assigned to avoid duplicate entries
+        $exists = Matdos::where('dosen_id', $request->dosen_id)
+            ->where('matkul_id', $request->matkul_id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mata kuliah sudah terdaftar untuk dosen ini.'
+            ], 409);
+        }
+
+        // Create relation
+        Matdos::create([
+            'dosen_id' => $request->dosen_id,
+            'matkul_id' => $request->matkul_id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mata kuliah berhasil ditambahkan ke dosen.'
+        ]);
+    }
+
+    public function removeMatkul($id)
+    {
+        $dosen = auth()->user()->dosen;
+
+        if (!$dosen) {
+            return back()->with('error', 'Dosen not found.');
+        }
+
+        Matdos::where('dosen_id', $dosen->dosen_id)
+            ->where('matkul_id', $id)
+            ->delete();
+
+        return back()->with('success', 'Mata kuliah berhasil dihapus.');
+    }
+
+    public function bulkStore(Request $request)
+    {
+        $request->validate([
+            'matkul_ids' => 'required|string',
+        ]);
+
+        $matkulIds = explode(',', $request->input('matkul_ids'));
+        $user = auth()->user();
+
+        // handle both cases safely
+        $dosenId = $user->dosen_id ?? ($user->dosen->dosen_id ?? null);
+
+        if (!$dosenId) {
+            return redirect()->to(url()->previous() . '#academic-info')
+                ->with('error', 'Gagal menambahkan mata kuliah: Dosen ID tidak ditemukan.');
+        }
+
+        foreach ($matkulIds as $id) {
+            if (!empty($id)) {
+                DB::table('matdos')->updateOrInsert([
+                    'dosen_id' => $dosenId,
+                    'matkul_id' => $id,
+                ]);
+            }
+        }
+
+        return redirect()->to(url()->previous() . '#academic-info')
+            ->with('success', 'Mata kuliah berhasil ditambahkan!');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'Link' => 'required|url',
+        ]);
+
+        $user = auth()->user();
+
+        // Handle both cases safely
+        $dosenId = $user->dosen_id ?? ($user->dosen->dosen_id ?? null);
+
+        Prestasi::create([
+            'user_id' => $user->id,
+            'dosen_id' => $dosenId, // add this column if your table supports it
+            'nama' => $request->nama,
+            'Link' => $request->Link,
+        ]);
+
+        return redirect()->to(url()->previous() . '#academic-info')
+            ->with('success', 'Prestasi berhasil ditambahkan!');
+    }
+
     // #research-info
     public function viewResearch($id)
     {
@@ -136,7 +271,6 @@ class ProfileController extends Controller
     {
         return redirect()->away(route('program.edit', $id));
     }
-
 
     // #security-info
     public function sendSecurityCode(Request $request)

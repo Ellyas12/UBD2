@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Profile | UBD</title>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="{{ asset('css/Lprofile.css') }}">
   <script src="{{ asset('js/Block.js') }}"></script>
+  
 </head>
 <body>
   <div class="dashboard-container">
@@ -144,55 +148,163 @@
           </div>
 
           <!-- Academic Info -->
-          <div id="academic-info" role="tabpanel" aria-labelledby="tab-academic" hidden>
-          <form id="academic-form">
+          <div id="academic-info" role="tabpanel" aria-labelledby="tab-academic">
+            <div id="academic-form">
 
-            <!-- ===== Left Column: Mata Kuliah ===== -->
-            <div class="academic-section">
-              <h3>Mata Kuliah</h3>
-              <input type="text" id="mata-kuliah-search" placeholder="Cari mata kuliah..." style="width:100%;">
-              <select id="mata-kuliah-options" style="width:100%;">
-                <option value="ALGO001">Algoritma</option>
-                <option value="SD002">Struktur Data</option>
-                <option value="JK003">Jaringan Komputer</option>
-              </select>
-              <button type="button" id="add-mata-kuliah" style="width:100%;">Tambah</button>
+              {{-- === Default View === --}}
+              <div class="academic-sections" id="academic-table-view">
+                {{-- Mata Kuliah Section --}}
+                <div class="academic-section">
+                  <h3>Mata Kuliah</h3>
+                  <div class="table-container">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Kode</th>
+                          <th>Nama Mata Kuliah</th>
+                          <th>Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @forelse($myMatkul as $mk)
+                          <tr>
+                            <td>{{ $mk->kode_matkul }}</td>
+                            <td>{{ $mk->nama }}</td>
+                            <td>
+                              <form method="POST" action="{{ route('user.matkul.destroy', $mk->matkul_id) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                              </form>
+                            </td>
+                          </tr>
+                        @empty
+                          <tr>
+                            <td colspan="3" class="text-center">Belum ada mata kuliah yang ditambahkan.</td>
+                          </tr>
+                        @endforelse
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
 
-              <div class="table-container">
-                <table id="mata-kuliah-list">
-                  <thead>
-                    <tr>
-                      <th>Kode</th>
-                      <th>Nama Mata Kuliah</th>
-                      <th>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
+                {{-- Prestasi Akademik Section --}}
+                <div class="academic-section">
+                  <h3>Prestasi Akademik</h3>
+                  <div class="table-container">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Nama Prestasi</th>
+                          <th>Link</th>
+                          <th>Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @forelse($myPrestasi as $p)
+                          <tr>
+                            <td>{{ $p->nama }}</td>
+                            <td>
+                              @if($p->Link)
+                                <a href="{{ $p->Link }}" target="_blank">Lihat</a>
+                              @else
+                                -
+                              @endif
+                            </td>
+                            <td>
+                              <form method="POST" action="{{ route('prestasi.destroy', $p->prestasi_id) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                              </form>
+                            </td>
+                          </tr>
+                        @empty
+                          <tr><td colspan="3" class="text-center">Belum ada prestasi.</td></tr>
+                        @endforelse
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- ===== Right Column: Prestasi Akademik ===== -->
-            <div class="academic-section">
-              <h3>Prestasi Akademik</h3>
+              {{-- === Add Mata Kuliah View === --}}
+              <div id="mata-kuliah-form" hidden>
+                <h3>Tambah Mata Kuliah</h3>
+                <div class="table-container mb-4">
+                  <h4>Mata Kuliah Ditambahkan</h4>
+                  <table class="table" id="selected-mk-table">
+                    <thead>
+                      <tr>
+                        <th>Kode</th>
+                        <th>Nama</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="selected-mk-body"></tbody>
+                  </table>
+                </div>
 
-              <button type="button" id="add-prestasi" style="width:100%;">Tambah Prestasi</button>
+                <div class="table-container">
+                  <h4>Daftar Semua Mata Kuliah</h4>
+                  <table class="table" id="available-mk-table">
+                    <thead>
+                      <tr>
+                        <th>Kode</th>
+                        <th>Nama</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="available-mk-body">
+                      @foreach($matkulList as $mk)
+                        <tr data-id="{{ $mk->matkul_id }}" data-kode="{{ $mk->kode_matkul }}" data-nama="{{ $mk->nama }}">
+                          <td>{{ $mk->kode_matkul }}</td>
+                          <td>{{ $mk->nama }}</td>
+                          <td><button type="button" class="btn btn-success btn-sm add-mk">Tambah</button></td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
 
-              <div class="table-container">
-                <table id="prestasi-list">
-                  <thead>
-                    <tr>
-                      <th>Prestasi</th>
-                      <th>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
+                <div class="mt-3 d-flex gap-2">
+                  <button type="button" id="back-mk" class="btn btn-secondary">Kembali</button>
+                  <form id="submit-selected-form" method="POST" action="{{ route('user.matkul.bulkStore') }}">
+                    @csrf
+                    <input type="hidden" name="matkul_ids" id="matkul-ids-input">
+                    <button type="submit" class="btn btn-primary">Simpan Semua</button>
+                  </form>
+                </div>
               </div>
-            </div>
 
-          </form>
-        </div>
+              {{-- === Add Prestasi View === --}}
+              <div id="prestasi-form" hidden>
+                <h3>Tambah Prestasi Akademik</h3>
+                <form method="POST" action="{{ route('prestasi.store') }}" id="add-prestasi-form">
+                  @csrf
+                  <div class="mb-3">
+                    <label for="prestasi-nama" class="form-label">Nama Prestasi</label>
+                    <input type="text" id="prestasi-nama" name="nama" class="form-control" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="prestasi-link" class="form-label">Link (Website)</label>
+                    <input type="url" id="prestasi-link" name="Link" class="form-control" required>
+                  </div>
+                  <div class="d-flex gap-2 mt-3">
+                    <button type="button" id="back-prestasi" class="btn btn-secondary">Kembali</button>
+                    <button type="submit" class="btn btn-primary">Simpan Prestasi</button>
+                  </div>
+                </form>
+              </div>
+
+              {{-- === Bottom Buttons === --}}
+              <div class="academic-buttons" id="academic-buttons">
+                <button type="button" id="add-mata-kuliah" class="btn btn-primary">Tambah Mata Kuliah</button>
+                <button type="button" id="add-prestasi" class="btn btn-primary">Tambah Prestasi</button>
+              </div>
+
+            </div>
+          </div>
 
           <!-- Research -->
           <div id="research-info" role="tabpanel" aria-labelledby="tab-research" hidden>

@@ -84,3 +84,130 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  const addMatkulBtn = document.getElementById('add-mata-kuliah');
+  const backBtn = document.getElementById('back-mk');
+  const formView = document.getElementById('mata-kuliah-form');
+  const tableView = document.getElementById('academic-table-view');
+  const selectedBody = document.getElementById('selected-mk-body');
+  const availableBody = document.getElementById('available-mk-body');
+  const idsInput = document.getElementById('matkul-ids-input');
+
+  let selectedMK = [];
+
+  addMatkulBtn.addEventListener('click', () => {
+    tableView.hidden = true;
+    formView.hidden = false;
+  });
+
+  backBtn.addEventListener('click', () => {
+    formView.hidden = true;
+    tableView.hidden = false;
+  });
+
+  availableBody.addEventListener('click', function(e) {
+    if (e.target.classList.contains('add-mk')) {
+      const row = e.target.closest('tr');
+      const id = row.dataset.id;
+      const kode = row.dataset.kode;
+      const nama = row.dataset.nama;
+
+      if (!selectedMK.includes(id)) {
+        selectedMK.push(id);
+
+        const newRow = document.createElement('tr');
+        newRow.dataset.id = id;
+        newRow.innerHTML = `
+          <td>${kode}</td>
+          <td>${nama}</td>
+          <td><button type="button" class="btn btn-danger btn-sm remove-mk">Hapus</button></td>
+        `;
+        selectedBody.appendChild(newRow);
+        row.remove();
+        updateHiddenInput();
+      }
+    }
+  });
+
+  selectedBody.addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-mk')) {
+      const row = e.target.closest('tr');
+      const id = row.dataset.id;
+      const kode = row.querySelector('td:nth-child(1)').textContent;
+      const nama = row.querySelector('td:nth-child(2)').textContent;
+
+      selectedMK = selectedMK.filter(m => m !== id);
+      row.remove();
+
+      // restore to available
+      const restoredRow = document.createElement('tr');
+      restoredRow.dataset.id = id;
+      restoredRow.dataset.kode = kode;
+      restoredRow.dataset.nama = nama;
+      restoredRow.innerHTML = `
+        <td>${kode}</td>
+        <td>${nama}</td>
+        <td><button type="button" class="btn btn-success btn-sm add-mk">Tambah</button></td>
+      `;
+      availableBody.appendChild(restoredRow);
+
+      updateHiddenInput();
+    }
+  });
+
+  function updateHiddenInput() {
+    idsInput.value = selectedMK.join(',');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('submit-selected-form');
+  if (!form) return;
+
+  form.addEventListener('submit', () => {
+    // Show a quick "processing" feedback
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Menyimpan...';
+    });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const addMkBtn = document.getElementById('add-mata-kuliah');
+    const addPrestasiBtn = document.getElementById('add-prestasi');
+    const backMkBtn = document.getElementById('back-mk');
+    const backPrestasiBtn = document.getElementById('back-prestasi');
+    const mkForm = document.getElementById('mata-kuliah-form');
+    const prestasiForm = document.getElementById('prestasi-form');
+    const academicTableView = document.getElementById('academic-table-view');
+    const bottomButtons = document.getElementById('academic-buttons');
+
+    // === Mata Kuliah View Switch ===
+    addMkBtn?.addEventListener('click', () => {
+        academicTableView.hidden = true;
+        mkForm.hidden = false;
+        prestasiForm.hidden = true;
+        bottomButtons.hidden = true;
+    });
+
+    backMkBtn?.addEventListener('click', () => {
+        mkForm.hidden = true;
+        academicTableView.hidden = false;
+        bottomButtons.hidden = false;
+    });
+
+    // === Prestasi View Switch ===
+    addPrestasiBtn?.addEventListener('click', () => {
+        academicTableView.hidden = true;
+        prestasiForm.hidden = false;
+        mkForm.hidden = true;
+        bottomButtons.hidden = true;
+    });
+
+    backPrestasiBtn?.addEventListener('click', () => {
+        prestasiForm.hidden = true;
+        academicTableView.hidden = false;
+        bottomButtons.hidden = false;
+    });
+});

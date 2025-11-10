@@ -5,21 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MataKuliah extends Model
+class Matkul extends Model
 {
     use HasFactory;
 
-    protected $table = 'mata_kuliah'; // Table name
-    protected $primaryKey = 'matkul_id'; // Primary key
+    protected $table = 'matkul';
+    protected $primaryKey = 'matkul_id';
 
-    // If your PK is auto-increment and integer, no need to change these:
     public $incrementing = true;
     protected $keyType = 'int';
 
-    // Mass assignable columns
     protected $fillable = [
         'kode_matkul',
         'nama',
         'SKS',
     ];
+
+    public function matdos()
+    {
+        return $this->hasMany(Matdos::class, 'dosen_id', 'dosen_id');
+    }
 }

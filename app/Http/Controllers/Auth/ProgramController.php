@@ -68,7 +68,6 @@ class ProgramController extends Controller
         return response()->json($results);
     }
 
-
     public function store(Request $request)
     {
         $user = auth()->user();

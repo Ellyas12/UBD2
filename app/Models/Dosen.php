@@ -42,4 +42,9 @@ class Dosen extends Model
     {
         return $this->hasMany(Program::class, 'dosen_id', 'dosen_id');
     }
+
+    public function matdos()
+    {
+        return $this->hasMany(Matdos::class, 'dosen_id', 'dosen_id');
+    }
 }

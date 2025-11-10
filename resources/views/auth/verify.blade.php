@@ -11,7 +11,7 @@
 
   <link rel="stylesheet" href="{{ asset('css/login.css') }}">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+  <script src="{{ asset('js/BlockAuth.js') }}"></script>
   <script>
     window.onload = function () {
       document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"]').forEach(el => {

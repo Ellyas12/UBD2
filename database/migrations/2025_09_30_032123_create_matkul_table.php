@@ -6,22 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('prestasis', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('matkul', function (Blueprint $table) {
+            $table->id('matkul_id');
+            $table->string('kode_matkul', 100);
+            $table->string('nama', 100);
+            $table->string('SKS', 100);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('prestasis');
+        Schema::dropIfExists('matkul');
     }
 };

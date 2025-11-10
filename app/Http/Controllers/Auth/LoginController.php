@@ -37,12 +37,10 @@ class LoginController extends Controller
         ])->withInput();
     }
 
-    // ✅ Logout method
     public function logout(Request $request)
     {
         Auth::logout();
 
-        // Invalidate and regenerate session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

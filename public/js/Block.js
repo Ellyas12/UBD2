@@ -7,15 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     'btn-success mt-3'
   ];
 
-  // Build selector for all protected classes
   const selector = protectedClasses
-    .map(cls => '.' + cls.replace(/\s+/g, '.')) // handle multi-class like "btn btn-success"
+    .map(cls => '.' + cls.replace(/\s+/g, '.'))
     .join(',');
 
-  // ===== Protect all matching buttons =====
   document.querySelectorAll(selector).forEach(button => {
     button.addEventListener('click', function (e) {
-      // If this is inside a form, let the form listener handle it
       if (this.closest('form')) return;
 
       if (this.disabled) {
@@ -26,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const originalText = this.innerText;
       this.disabled = true;
 
-      // Change text for feedback
       if (this.classList.contains('btn-danger')) {
         this.innerText = 'Processing...';
       } else if (this.classList.contains('btn-logout')) {
@@ -35,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
         this.innerText = 'Please wait...';
       }
 
-      // Re-enable after 5 seconds if no redirect happened
       setTimeout(() => {
         if (document.visibilityState === 'visible') {
           this.disabled = false;
@@ -45,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ===== Protect all form submissions =====
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', function (e) {
       const submitBtn = this.querySelector(
@@ -67,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.value = 'Processing...';
       }
 
-      // Fallback: re-enable if validation fails and no redirect happens
       setTimeout(() => {
         if (document.visibilityState === 'visible') {
           submitBtn.disabled = false;

@@ -8,23 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('matdos', function (Blueprint $table) {
-            $table->id('matdos_id');
+        Schema::create('prestasi', function (Blueprint $table) {
+            $table->id('prestasi_id');
             $table->unsignedBigInteger('dosen_id')->nullable();
-            $table->unsignedBigInteger('matkul_id')->nullable();
             $table->foreign('dosen_id')
                   ->references('dosen_id')
                   ->on('dosen')
                   ->onDelete('set null');
-            $table->foreign('matkul_id')
-                  ->references('matkul_id')
-                  ->on('matkul')
-                  ->onDelete('set null');
+            $table->string('nama', 100);
+            $table->string('Link', 400);
         });
     }
-
     public function down(): void
     {
-        Schema::dropIfExists('matdos');
+        Schema::dropIfExists('prestasi');
     }
 };
