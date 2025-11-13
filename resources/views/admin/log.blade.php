@@ -13,6 +13,20 @@
     <div class="program-detail">
     <h2>User activity logs</h2>
 
+    <form method="GET" action="{{ route('admin.logs') }}" style="margin-bottom: 20px;">
+    <input type="text" name="search" placeholder="Search logs..."
+           value="{{ request('search') }}" style="padding: 8px;">
+
+    <select name="action" style="padding: 8px;">
+        <option value="">All Actions</option>
+        <option value="created" {{ request('action') == 'created' ? 'selected' : '' }}>Created</option>
+        <option value="updated" {{ request('action') == 'updated' ? 'selected' : '' }}>Updated</option>
+        <option value="deleted" {{ request('action') == 'deleted' ? 'selected' : '' }}>Deleted</option>
+        <option value="restored" {{ request('action') == 'restored' ? 'selected' : '' }}>Restored</option>
+    </select>
+
+    <button type="submit" style="padding: 8px 12px;">Search</button>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-striped align-middle">

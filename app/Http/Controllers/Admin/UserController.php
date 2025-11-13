@@ -7,12 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Dosen;
 use App\Models\User;
+use App\Models\Jabatan;
+use App\Models\Fakultas;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // Keep the authenticated user
         $authUser = Auth::user();
         $dosen = $authUser->dosen ?? null;
 
@@ -43,13 +44,18 @@ class UserController extends Controller
         $authUser = Auth::user();
         $dosen = $authUser->dosen ?? null;
 
-        // Load the user and dosen relation
-        $user = User::with('dosen')->findOrFail($id);
+        $userData = User::with('dosen')->findOrFail($id);
+
+        // Load dropdown data
+        $jabatanList = Jabatan::all();
+        $fakultasList = Fakultas::all();
 
         return view('admin.user-edit', [
-            'userData' => $user,   // editing target
-            'user' => $authUser,   // logged-in admin
+            'user' => $authUser,
             'dosen' => $dosen,
+            'userData' => $userData,
+            'jabatanList' => $jabatanList,
+            'fakultasList' => $fakultasList,
         ]);
     }
 
@@ -59,25 +65,40 @@ class UserController extends Controller
             'username' => 'required|string|max:255',
             'email' => 'required|email',
             'nidn' => 'nullable|string|max:50',
-            'role' => 'required|string',
+            'posisi' => 'required|in:Dekan,Kaprodi,Guru',
+            'role' => 'required|in:Lecturer,Admin',
+
+            // Dosen fields
+            'nama' => 'nullable|string|max:100',
+            'telp' => 'nullable|string|max:20',
+            'pendidikan' => 'nullable|string|max:40',
+            'bidang' => 'nullable|string|max:40',
+            'jabatan_id' => 'nullable|integer',
+            'fakultas_id' => 'nullable|integer',
         ]);
 
-        // Update User
         $user = User::findOrFail($id);
+
+        // Update user
         $user->username = $request->username;
         $user->email = $request->email;
         $user->nidn = $request->nidn;
+        $user->posisi = $request->posisi;
         $user->role = $request->role;
         $user->save();
 
+        // If this user has a dosen detail, update it
         if ($user->dosen) {
             $user->dosen->nama = $request->nama;
             $user->dosen->telp = $request->telp;
             $user->dosen->pendidikan = $request->pendidikan;
             $user->dosen->bidang = $request->bidang;
+            $user->dosen->jabatan_id = $request->jabatan_id;
+            $user->dosen->fakultas_id = $request->fakultas_id;
             $user->dosen->save();
         }
 
         return redirect()->route('admin.users')->with('success', 'User updated successfully.');
     }
+
 }

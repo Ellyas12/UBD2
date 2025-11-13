@@ -12,8 +12,18 @@
     @include('lecturer.navbar')
 
     <main class="main-content">
+      @php
+          $ann = \App\Models\Announcement::find(1);
+      @endphp
+
       <div class="announcement-box">
-        Announcement: Welcome back, {{ $user->name }}! Check out the latest program updates below.
+        <strong>Announcement:</strong><br>
+        @if($ann && ($ann->title || $ann->body))
+            <h3>{{ $ann->title }}</h3>
+            <p>{{ $ann->body }}</p>
+        @else
+            <p>No announcement yet.</p>
+        @endif
       </div>
 
       <div class="home-container">

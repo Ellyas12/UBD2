@@ -13,23 +13,31 @@ class LogController extends Controller
     {
         $user  = Auth::user();
         $dosen = $user->dosen ?? null;
+        $search = $request->input('search');
+        $action = $request->input('action');
 
-        $query = Log::query();
-
-        if ($request->filled('action')) {
-            $query->where('action', $request->action);
-        }
-
-        if ($request->filled('search')) {
-            $query->where('description', 'like', '%' . $request->search . '%');
-        }
-
-        $logs = $query->orderBy('created_at', 'desc')->paginate(15);
+        $logs = Log::with('user')
+            ->when($action, function ($query, $action) {
+                $query->where('action', $action);
+            })
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('description', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('username', 'like', "%{$search}%");
+                    });
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         return view('admin.log', [
             'user' => $user,
             'dosen' => $dosen,
-            'logs' => $logs, // ✅ send logs to blade
+            'logs' => $logs,
+            'search' => $search,
+            'action' => $action,
         ]);
     }
 }

@@ -11,9 +11,19 @@
   @include('admin.navbar')
 
   <main class="main-content">
-    <div class="announcement-box">
-      Announcement :
-    </div>
+      @php
+          $ann = \App\Models\Announcement::find(1);
+      @endphp
+
+      <div class="announcement-box">
+        <strong>Announcement:</strong><br>
+        @if($ann && ($ann->title || $ann->body))
+            <h3>{{ $ann->title }}</h3>
+            <p>{{ $ann->body }}</p>
+        @else
+            <p>No announcement yet.</p>
+        @endif
+      </div>
 
     <div class="section-title">Penelitian lain :</div>
     <div class="section-content">
