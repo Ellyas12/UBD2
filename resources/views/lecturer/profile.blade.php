@@ -15,7 +15,6 @@
     @include('lecturer.navbar')
     <main class="main-content">
       <div class="profile-container">
-        <!-- Sidebar -->
         <div class="profile-sidebar">
           <div class="profile-avatar">
             <img 

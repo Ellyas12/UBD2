@@ -1,39 +1,44 @@
-<link rel="stylesheet" href="{{ asset('css/login.css') }}">
+<link rel="stylesheet" href="{{ asset('css/Sidebar.css') }}">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<script src="{{ asset('js/BlockAuth.js') }}"></script>
+<script src="{{ asset('js/Block.js') }}"></script>
+<script src="{{ asset('js/Sidebar.js') }}"></script>
     
-<aside class="sidebar">
-    <img src="{{ asset('images/ubd-logo.png') }}" alt="UBD Logo">
-    <nav>
-        <a href="{{ route('lecturer.home') }}" class="{{ request()->routeIs('lecturer.home') ? 'active' : '' }}">
-          <span class="material-icons">home</span> Home
+<aside class="sidebar-container" id="sidebar">
+
+    <div class="sidebar-top-container">
+        <button class="sidebar-hamburger" id="sidebarToggle">
+            <span class="material-icons">menu</span>
+        </button>
+    </div>
+
+    <div class="sidebar-logo-container">
+        <img src="{{ asset('images/ubd-logo.png') }}" alt="UBD Logo">
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="{{ route('lecturer.home') }}" class="sidebar-link {{ request()->routeIs('lecturer.home') ? 'active' : '' }}">
+            <span class="material-icons">home</span>
+            <span class="sidebar-label">Home</span>
         </a>
 
-        <a href="{{ route('program') }}" class="{{ request()->routeIs('program') ? 'active' : '' }}">
-          <span class="material-icons">science</span> Penelitian & PKM
+        <a href="{{ route('program') }}" class="sidebar-link {{ request()->routeIs('program') ? 'active' : '' }}">
+            <span class="material-icons">science</span>
+            <span class="sidebar-label">Penelitian & PKM</span>
         </a>
 
-        @if(auth()->check() && (auth()->user()->posisi === 'Dekan'))
-        <a href="{{ route('dekan') }}" class="{{ request()->routeIs('dekan') ? 'active' : '' }}">
-          <span class="material-icons">science</span> Dekan
-        </a>
-        @endif
-
-        @if(auth()->check() && (auth()->user()->posisi === 'Kaprodi'))
-        <a href="{{ route('kaprodi') }}" class="{{ request()->routeIs('kaprodi') ? 'active' : '' }}">
-          <span class="material-icons">science</span> Kaprodi
-        </a>  
-        @endif
-
-        <a href="{{ route('profile') }}" class="{{ request()->routeIs('profile') ? 'active' : '' }}">
-          <span class="material-icons">person</span> Profile
+        <a href="{{ route('profile') }}" class="sidebar-link {{ request()->routeIs('profile') ? 'active' : '' }}">
+            <span class="material-icons">person</span>
+            <span class="sidebar-label">Profile</span>
         </a>
     </nav>
 
-    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+    <form action="{{ route('logout') }}" method="POST" style="display:inline;"> 
       @csrf
-      <button type="submit" class="logout">
-        <span class="material-icons">logout</span> Logout >>>
-      </button>
+      <div class="sidebar-bottom-container">
+        <button type="submit" class="sidebar-logout-btn">
+            <span class="material-icons">logout</span>
+            <span class="sidebar-label">LOGOUT</span>
+        </button>
+      </div>
     </form>
 </aside>

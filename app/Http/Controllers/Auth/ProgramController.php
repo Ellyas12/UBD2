@@ -29,10 +29,10 @@ class ProgramController extends Controller
 
         $myPrograms = [];
         if ($dosen) {
-            $myPrograms = Program::with(['dosen', 'pertemuan'])
-                ->where('dosen_id', $dosen->dosen_id)
-                ->latest('tanggal')
-                ->get();
+        $myPrograms = Program::with(['dosen', 'pertemuan', 'ketua.dosen', 'anggota.dosen'])
+            ->where('dosen_id', $dosen->dosen_id)
+            ->latest('tanggal')
+            ->paginate(5);
         }
 
         return view('lecturer.program', compact('user', 'dosen', 'pertemuanList', 'programList', 'myPrograms'));
@@ -319,7 +319,7 @@ class ProgramController extends Controller
 
     public function restoreProgram()
     {
-        $deletedPrograms = Program::onlyTrashed()->get();
+        $deletedPrograms = Program::onlyTrashed()->paginate(5);
 
         return view('lecturer.program-restore', compact('deletedPrograms'));
     }

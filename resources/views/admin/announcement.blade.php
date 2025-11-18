@@ -5,11 +5,9 @@
   <title>Edit Announcement</title>
   <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 </head>
-
 <body>
-  @include('admin.navbar')
-
   <div class="dashboard-container">
+    @include('admin.navbar')
     <main class="main-content">
 
       <h2>Announcement Settings</h2>

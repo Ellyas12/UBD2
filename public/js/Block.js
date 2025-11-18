@@ -1,50 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const protectedClasses = [
-    'btn-danger',
-    'btn',
-    'btn-success',
-    'btn-secondary',
-    'btn-success mt-3'
-  ];
-
-  const selector = protectedClasses
-    .map(cls => '.' + cls.replace(/\s+/g, '.'))
-    .join(',');
-
-  document.querySelectorAll(selector).forEach(button => {
-    button.addEventListener('click', function (e) {
-      if (this.closest('form')) return;
-
-      if (this.disabled) {
-        e.preventDefault();
-        return;
-      }
-
-      const originalText = this.innerText;
-      this.disabled = true;
-
-      if (this.classList.contains('btn-danger')) {
-        this.innerText = 'Processing...';
-      } else if (this.classList.contains('btn-logout')) {
-        this.innerText = 'Logging out...';
-      } else {
-        this.innerText = 'Please wait...';
-      }
-
-      setTimeout(() => {
-        if (document.visibilityState === 'visible') {
-          this.disabled = false;
-          this.innerText = originalText;
-        }
-      }, 5000);
-    });
-  });
+  const buttonBehaviors = {
+    'sidebar-logout-btn': 'Logging out...',
+    'btn-submit' : 'Submitting...'
+  };
 
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', function (e) {
-      const submitBtn = this.querySelector(
-        'button[type="submit"], input[type="submit"]'
-      );
+
+      const submitBtn = this.querySelector('button[type="submit"], input[type="submit"]');
       if (!submitBtn) return;
 
       if (submitBtn.disabled) {
@@ -53,21 +16,38 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const originalText = submitBtn.innerText || submitBtn.value;
+      submitBtn.dataset.originalText = originalText;
       submitBtn.disabled = true;
 
-      if (submitBtn.tagName === 'BUTTON') {
-        submitBtn.innerText = 'Processing...';
-      } else {
-        submitBtn.value = 'Processing...';
+      let applied = false;
+      Object.keys(buttonBehaviors).forEach(className => {
+        if (submitBtn.classList.contains(className)) {
+          const msg = buttonBehaviors[className];
+          if (submitBtn.tagName === 'BUTTON') {
+            submitBtn.innerText = msg;
+          } else {
+            submitBtn.value = msg;
+          }
+          applied = true;
+        }
+      });
+
+      if (!applied) {
+        if (submitBtn.tagName === 'BUTTON') {
+          submitBtn.innerText = 'Processing...';
+        } else {
+          submitBtn.value = 'Processing...';
+        }
       }
 
       setTimeout(() => {
         if (document.visibilityState === 'visible') {
           submitBtn.disabled = false;
+          const orig = submitBtn.dataset.originalText;
           if (submitBtn.tagName === 'BUTTON') {
-            submitBtn.innerText = originalText;
+            submitBtn.innerText = orig;
           } else {
-            submitBtn.value = originalText;
+            submitBtn.value = orig;
           }
         }
       }, 5000);

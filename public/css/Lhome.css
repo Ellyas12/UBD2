@@ -43,20 +43,19 @@ body {
    DASHBOARD & LAYOUT
 ======================= */
 .dashboard-container {
-  display: flex;
   min-height: 100vh;
 }
 
 .main-content {
-  flex: 1;
-  padding: 2rem;
-  background: #fff;
-  overflow-x: hidden;
+  margin-left: 260px; 
+  padding: 20px;
+  transition: margin-left 0.3s ease;
 }
 
-/* =======================
-   ANNOUNCEMENT
-======================= */
+.sidebar-container.collapsed ~ .main-content {
+  margin-left: 70px;
+}
+
 .announcement-box {
   background: #b30000;
   color: #fff;
