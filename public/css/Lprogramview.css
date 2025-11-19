@@ -1,0 +1,25 @@
+/* Navigation button container */
+.form-navigation {
+  margin-top: 15px;
+}
+
+/* Match form field width */
+.form-navigation .btn-submit {
+  display: inline-block;
+  width: 100%;                    /* full width like inputs */
+  text-align: center;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  border-radius: 10px;
+  text-decoration: none !important;
+  background-color: #b5121b;
+  color: #fff;
+  font-weight: 600;
+  transition: 0.3s;
+  margin-bottom: 15px;            /* same bottom spacing as fields */
+}
+
+/* Hover */
+.form-navigation .btn-submit:hover {
+  background-color: #8f0f15;
+}

@@ -1,4 +1,13 @@
-/* ===== Profile Page ===== */
+.main-content {
+  margin-left: 260px;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+}
+
+.sidebar-container.collapsed ~ .main-content {
+  margin-left: 70px;
+}
+
 .profile-container {
   display: flex;
   width: 100%;

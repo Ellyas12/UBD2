@@ -95,38 +95,6 @@ h2 {
   margin-top: 10px;
 }
 
-.btn-submit {
-  background: #b91c1c;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.btn-submit:hover {
-  background: #991b1b;
-}
-
-.btn-back {
-  background: #e5e7eb;
-  color: #111;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.btn-back:hover {
-  background: #d1d5db;
-}
-
-/* ===== File Upload Zone ===== */
 #dropZone {
   border: 2px dashed #ccc;
   border-radius: 8px;
@@ -212,8 +180,108 @@ h2 {
     .step-label { display:block; text-align:center; font-size:12px; margin-top:6px; color:#495057; }
     .form-step { display:none; }
     .form-step.active { display:block; }
-    .error-message { color:#b00020; font-size:13px; margin-top:6px; }
-    .btn-submit { padding:8px 14px; border-radius:6px; border:none; cursor:pointer; background:#1976d2; color:#fff; }
-    .btn-submit.secondary { background:#6c757d; }
     #fileList { list-style:none; padding:0; margin:10px 0 0; }
     input:-webkit-autofill { transition: background-color 5000s ease-in-out 0s; }
+
+/* MAIN BUTTON (Next, Previous) */
+.btn-submit {
+  text-decoration: none !important;
+  background-color: #b5121b;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  display: inline-block;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.btn-submit:hover {
+  background-color: #8f0f15;
+}
+
+.btn-submit-secondary {
+  text-decoration: none !important;
+  background-color: #7f0d14;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  display: inline-block;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.btn-submit-secondary:hover {
+  background-color: #5b0a0e;
+}
+
+.btn-back {
+  text-decoration: none !important;
+  background-color: #444;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  display: inline-block;
+  transition: 0.3s;
+}
+
+.btn-back:hover {
+  background-color: #333;
+}
+
+.error-box {
+  color: #b5121b;
+  font-weight: 600;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.form-step input,
+.form-step select,
+.form-step textarea,
+#ketua_id,
+#anggota_ids,
+#linkweb{
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  border-radius: 10px;
+}
+
+#deskripsi {
+  height: 120px;
+  resize: vertical;
+}
+
+.currency-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.currency-prefix {
+  position: absolute;
+  left: 14px;
+
+  top: 40%;
+  transform: translateY(-50%);  
+
+  font-weight: 700;
+  color: #555;
+  pointer-events: none;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.currency-wrapper input {
+  width: 100%;
+  padding-left: 56px !important; 
+  box-sizing: border-box;
+}

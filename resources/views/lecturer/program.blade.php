@@ -30,8 +30,6 @@
                   <th>Judul</th>
                   <th>Jenis</th>
                   <th>Tanggal</th>
-                  <th>Ketua</th>
-                  <th>Anggota</th>
                   <th>Status</th>
                   <th>Stample</th>
                   <th>Action</th>
@@ -43,16 +41,6 @@
                   <td>{{ $program->judul }}</td>
                   <td>{{ $program->jenis }}</td>
                   <td>{{ $program->tanggal }}</td>
-                  <td>{{ $program->ketua->dosen->nama ?? '-' }}</td>
-                  <td>
-                    @if ($program->anggota->isNotEmpty())
-                        @foreach ($program->anggota as $index => $anggota)
-                            {{ $index + 1 }}. {{ $anggota->dosen->nama ?? '-' }}<br>
-                        @endforeach
-                    @else
-                        -
-                    @endif
-                  </td>
                   <td>
                     <span class="badge 
                       @if($program->status == 'Pending') bg-warning text-dark
@@ -95,7 +83,7 @@
                 </tr>
                 @empty
                 <tr>
-                  <td colspan="8" class="text-center text-muted">No research data available</td>
+                  <td colspan="6" class="text-center text-muted">No research data available</td>
                 </tr>
                 @endforelse
 

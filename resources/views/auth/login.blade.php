@@ -54,22 +54,22 @@
                  required autocomplete="off">
         </div>
 
-@error('password')
-  <p class="error-text">{{ $message }}</p>
-@enderror
-<div class="input-group">
-  <span class="material-icons input-icon">lock</span>
-  <input type="password" 
-         name="password" 
-         placeholder="Password"
-         required 
-         autocomplete="new-password"
-         oncopy="return false" 
-         onpaste="return false" 
-         oncut="return false" 
-         ondrag="return false" 
-         ondrop="return false">
-</div>
+        @error('password')
+          <p class="error-text">{{ $message }}</p>
+        @enderror
+        <div class="input-group">
+          <span class="material-icons input-icon">lock</span>
+          <input type="password" 
+                name="password" 
+                placeholder="Password"
+                required 
+                autocomplete="new-password"
+                oncopy="return false" 
+                onpaste="return false" 
+                oncut="return false" 
+                ondrag="return false" 
+                ondrop="return false">
+        </div>
 
         <a href="/forgot" class="forgot-link">Forgot Password?</a>
 

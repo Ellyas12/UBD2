@@ -5,7 +5,6 @@
   <title>Restore Program | UBD</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/Lprogram.css') }}">
-  <script src="{{ asset('js/Block.js') }}"></script>
 </head>
 <body>
   <div class="dashboard-container">
