@@ -3,35 +3,111 @@
 <head>
   <meta charset="UTF-8">
   <title>Program Stamping | Kaprodi</title>
-  <link rel="stylesheet" href="{{ asset('css/Lprogram.css') }}">
-  <script src="{{ asset('js/Block.js') }}"></script>
+  <link rel="stylesheet" href="{{ asset('css/Lprogramcreate.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/Lprogramview.css') }}">
 </head>
 <body>
   <div class="dashboard-container">
     @include('lecturer.navbar')
+          <main class="main-content">
+        <div class="program-wrapper">
+          <div class="profile-form">
 
-    <div class="program-detail">
-      <h2>Detail Program</h2>
+            {{-- Flash Message --}}
+            @if(session('success'))
+              <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+              <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
-      <div class="card">
-        <p><strong>Judul:</strong> {{ $program->judul }}</p>
-        <p><strong>Ketua:</strong> {{ $program->dosen->nama ?? '-' }}</p>
-        <p><strong>Jenis:</strong> {{ $program->jenis }}</p>
-        <p><strong>Tanggal:</strong> {{ $program->tanggal }}</p>
-        <p><strong>Deskripsi:</strong> {{ $program->deskripsi }}</p>
-        <p><strong>Status:</strong> {{ $program->stamp }}</p>
-      </div>
+            <h2 class="section-title">Detail Program</h2>
 
-      @if($program->stamp != 'Done')
-      <form action="{{ route('kaprodi.stamp.confirm', $program->program_id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin men-stamp program ini?')">
-        @csrf
-        <button type="submit" class="btn btn-success">✅ Stamp Program</button>
-      </form>
-      @else
-        <p><strong>Program sudah di-stamp ✅</strong></p>
-      @endif
+            <div class="details-grid">
 
-      <a href="{{ route('kaprodi') }}" class="btn btn-secondary">⬅️ Kembali</a>
+              {{-- Left column: Program info --}}
+              <div class="detail-card">
+                <h3>Program Info</h3>
+                <p><strong>Judul:</strong> {{ $program->judul ?? '-' }}</p>
+                <p><strong>Jenis:</strong> {{ $program->jenis ?? '-' }}</p>
+                <p><strong>Bidang:</strong> {{ $program->bidang ?? '-' }}</p>
+                <p><strong>Topik:</strong> {{ $program->topik ?? '-' }}</p>
+                <p><strong>Pertemuan:</strong> {{ $program->pertemuan->nama ?? '-' }}</p>
+                <p><strong>Tanggal:</strong> {{ $program->tanggal ?? '-' }}</p>
+              </div>
+
+              {{-- Right column: Team & financial --}}
+              <div class="detail-card">
+                <h3>Team</h3>
+                <p>
+                  <strong>Ketua:</strong>
+                  {{ $program->ketua->dosen->nama ?? '-' }}
+                  - {{ $program->ketua->dosen->user->nidn ?? '-' }}
+                </p>
+
+                <p><strong>Anggota:</strong></p>
+                @if ($program->anggota->isNotEmpty())
+                  <ul>
+                    @foreach ($program->anggota as $anggota)
+                      <li>
+                        {{ $anggota->dosen->nama ?? '-' }}
+                        - {{ $anggota->dosen->user->nidn ?? '-' }}
+                      </li>
+                    @endforeach
+                  </ul>
+                @else
+                  <p>-</p>
+                @endif
+
+                <h3 style="margin-top:12px;">Financial</h3>
+                <p><strong>Biaya:</strong> Rp {{ number_format($program->biaya, 0, ',', '.') }}</p>
+                <p><strong>Sumber Biaya:</strong> {{ $program->sumber_biaya ?? '-' }}</p>
+                <p><strong>Website:</strong>
+                  @if($program->linkweb)
+                    <a href="{{ $program->linkweb }}" target="_blank" rel="noopener noreferrer">{{ $program->linkweb }}</a>
+                  @else
+                    -
+                  @endif
+                </p>
+              </div>
+
+              {{-- Full-width description --}}
+              <div class="description-card" style="grid-column: 1 / -1;">
+                <h3>Deskripsi</h3>
+                <p>{{ $program->deskripsi ?? '-' }}</p>
+              </div>
+
+              {{-- Files --}}
+              @if($files->count())
+                <div class="files-card" style="grid-column: 1 / -1;">
+                  <h3>Berkas Terunggah</h3>
+                  <ul>
+                    @foreach ($files as $file)
+                      <li>
+                        <a href="{{ asset('storage/' . $file->file) }}" target="_blank" rel="noopener noreferrer">
+                          📄 {{ $file->nama }}
+                        </a>
+                      </li>
+                    @endforeach
+                  </ul>
+                </div>
+              @endif
+
+            </div>
+            <div class="button-area">
+              <a href="{{ route('kaprodi') }}" class="btn">⬅️ Kembali</a>
+              @if($program->stamp != 'Done')
+              <form action="{{ route('kaprodi.stamp.confirm', $program->program_id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin men-stamp program ini?')">
+                @csrf
+                <button type="submit" class="btn edit">✅ Stamp Program</button>
+              </form>
+              @else
+              <p><strong>Program sudah di-stamp ✅</strong></p>
+              @endif
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   </div>
 </body>

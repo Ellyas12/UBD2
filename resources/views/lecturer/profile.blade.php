@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Profile | UBD</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="{{ asset('css/Lprofile.css') }}">
-  
 </head>
 <body>
   <div class="dashboard-container">
@@ -313,7 +313,6 @@
                   <th>Judul</th>
                   <th>Tanggal</th>
                   <th>Jenis</th>
-                  <th>Ketua</th>
                   <th>Status</th>
                   <th>Stample</th>
                   <th>Action</th>
@@ -325,16 +324,31 @@
                   <td>{{ $program->judul }}</td>
                   <td>{{ $program->tanggal }}</td>
                   <td>{{ $program->jenis }}</td>
-                  <td>{{ $program->ketua->dosen->nama ?? '-' }}</td>
-                  <td>{{ $program->status }}</td>
-                  <td>{{ $program->stamp }}</td>
+                  <td>
+                    <span class="badge 
+                      @if($program->status == 'Pending') bg-warning text-dark
+                      @elseif($program->status == 'Accepted') bg-success
+                      @elseif($program->status == 'Revisi') bg-primary
+                      @elseif($program->status == 'Denied') bg-danger
+                      @else bg-secondary @endif">
+                      {{ $program->status }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge 
+                      @if($program->stamp == 'Not yet') bg-warning text-dark
+                      @elseif($program->stamp == 'Done') bg-success
+                      @else bg-secondary @endif">
+                      {{ $program->stamp }}
+                    </span>
+                  </td>
                 <td>
-                  <a href="{{ route('program.view', $program->program_id) }}" class="btn btn-info" target="_blank">👁️ Visit</a>
+                  <a href="{{ route('program.view', $program->program_id) }}" class="btn btn-info btn-sm" target="_blank">👁️ Visit</a>
                 </td>
                 </tr>
                 @empty
                 <tr>
-                  <td colspan="7" style="text-align:center;">No research data available</td>
+                  <td colspan="6" style="text-align:center;">No research data available</td>
                 </tr>
                 @endforelse
               </tbody>

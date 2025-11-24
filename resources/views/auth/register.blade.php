@@ -59,7 +59,7 @@
         @enderror
         <div class="input-group">
             <span class="material-icons input-icon">assignment_ind</span>
-            <input type="text" name="nidn" placeholder="NIDN" value="{{ old('nidn') }}" required>
+            <input type="text" name="nidn" placeholder="NIDN" value="{{ old('nidn') }}" maxlength="5" required>
         </div>
 
         <button type="submit" class="btn-login">SIGN UP</button>

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class KaprodiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $kaprodi = Dosen::where('user_id', $user->user_id)->first();
@@ -19,25 +19,40 @@ class KaprodiController extends Controller
             return redirect()->route('lecturer.home')->with('error', 'Data dosen tidak ditemukan.');
         }
 
-        // Programs under the same faculty as this Kaprodi
-        $programs = Program::whereHas('dosen', function ($query) use ($kaprodi) {
-            $query->where('fakultas_id', $kaprodi->fakultas_id);
-        })
-        ->with('dosen')
-        ->orderBy('tanggal', 'desc')
-        ->get();
+        // Search inputs
+        $searchUnstamped = $request->search_unstamped;
+        $searchStamped   = $request->search_stamped;
 
-        // Separate them based on stamp status
-        $unstamped = $programs->where('stamp', '!=', 'Done');
-        $stamped = $programs->where('stamp', 'Done');
+        $unstamped = Program::whereHas('dosen', function ($query) use ($kaprodi) {
+                $query->where('fakultas_id', $kaprodi->fakultas_id);
+            })
+            ->where('stamp', '!=', 'Done')
+            ->when($searchUnstamped, function ($q) use ($searchUnstamped) {
+                $q->where('judul', 'like', "%{$searchUnstamped}%");
+            })
+            ->with('dosen')
+            ->orderBy('tanggal', 'desc')
+            ->paginate(5, ['*'], 'unstamped_page');
+
+        $stamped = Program::whereHas('dosen', function ($query) use ($kaprodi) {
+                $query->where('fakultas_id', $kaprodi->fakultas_id);
+            })
+            ->where('stamp', 'Done')
+            ->when($searchStamped, function ($q) use ($searchStamped) {
+                $q->where('judul', 'like', "%{$searchStamped}%");
+            })
+            ->with('dosen')
+            ->orderBy('tanggal', 'desc')
+            ->paginate(5, ['*'], 'stamped_page');
 
         return view('lecturer.kaprodi', compact('unstamped', 'stamped'));
     }
 
     public function showStampPage($program_id)
     {
-        $program = Program::with('dosen')->findOrFail($program_id);
-        return view('lecturer.kaprodi-kesah', compact('program'));
+        $program = Program::with(['dosen', 'pertemuan'])->findOrFail($program_id);
+        $files = \App\Models\File::where('program_id', $program_id)->get();
+        return view('lecturer.kaprodi-kesah', compact('program', 'files'));
     }
 
     public function confirmStamp($program_id)

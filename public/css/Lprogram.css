@@ -61,7 +61,14 @@ thead {
 th, td {
   padding: 12px 15px;
   vertical-align: middle;
-  text-align: center;
+}
+
+.left {
+  text-align: left !important;
+}
+
+.center {
+  text-align: center !important;
 }
 
 tbody tr:nth-child(even) {
@@ -109,6 +116,27 @@ tbody tr:hover {
 
 .btn-submit:hover {
   background-color: #8f0f15;
+}
+
+.pagination .page-link {
+    color: #c62828;                     /* text color */
+}
+
+.pagination .page-link:hover {
+    color: #fff;
+    background-color: #c62828;
+    border-color: #c62828;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #c62828;          /* active page */
+    border-color: #c62828;
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #c62828;
+    opacity: 0.5;
 }
 
 @media (max-width: 768px) {

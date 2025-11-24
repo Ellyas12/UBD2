@@ -30,6 +30,16 @@
             <span class="material-icons">person</span>
             <span class="sidebar-label">Profile</span>
         </a>
+
+        <a href="{{ route('kaprodi') }}" class="sidebar-link {{ request()->routeIs('kaprodi') ? 'active' : '' }}">
+            <span class="material-icons">list</span>
+            <span class="sidebar-label">Kaprodi</span>
+        </a>
+
+        <a href="{{ route('dekan') }}" class="sidebar-link {{ request()->routeIs('dekan') ? 'active' : '' }}">
+            <span class="material-icons">list</span>
+            <span class="sidebar-label">Dekan</span>
+        </a>
     </nav>
 
     <form action="{{ route('logout') }}" method="POST" style="display:inline;"> 

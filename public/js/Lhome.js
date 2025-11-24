@@ -5,17 +5,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultsList = document.getElementById("search-results-list");
   const noResults = document.getElementById("no-results");
 
-  // Grab all program cards
   const programs = Array.from(document.querySelectorAll(".program-card"));
 
-  // Highlight matched text
   function highlightText(element, query) {
     if (!query) return element.innerHTML;
     const regex = new RegExp(`(${query})`, "gi");
     return element.innerHTML.replace(regex, `<span class="highlight">$1</span>`);
   }
 
-  // Search function
   function performSearch() {
     const query = searchInput.value.trim().toLowerCase();
     resultsList.innerHTML = "";
@@ -27,9 +24,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const matches = programs.filter(card => {
-      const text = card.innerText.toLowerCase();
-      return text.includes(query);
+        const status = card.querySelector(".program-status")?.innerText.trim().toLowerCase();
+        const text = card.innerText.toLowerCase();
+
+        // Only include Accepted programs
+        if (status !== "accepted") return false;
+
+        return text.includes(query);
     });
+
 
     searchResults.classList.remove("hidden");
 
@@ -45,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Trigger search on button click or Enter key
   searchBtn.addEventListener("click", performSearch);
   searchInput.addEventListener("keydown", e => {
     if (e.key === "Enter") performSearch();
@@ -53,118 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const fakultasSelect = document.getElementById("filter-fakultas");
-  const jenisSelect = document.getElementById("filter-jenis");
-  const sortSelect = document.getElementById("sort-option");
-  const applyBtn = document.getElementById("apply-sort");
-
-  const programsContainer = document.getElementById("program-list");
-  const paginationControls = document.getElementById("pagination-controls");
-  const viewMoreBtn = document.getElementById("view-more");
-  const pageButtonsContainer = document.getElementById("page-buttons");
-
-  const allPrograms = Array.from(programsContainer.querySelectorAll(".program-card"));
-
-  let currentPage = 1;
-  let programsPerPage = 6; // initial
-  const expandPageLimit = 10; // expanded after View More
-
-  function getProgramData(card) {
-    const text = card.innerText.toLowerCase();
-    return {
-      fakultasId: (card.dataset.fakultasId || "").trim(),
-      jenis: (text.match(/jenis:\s*(.+)/i) || [])[1]?.trim() || "",
-      tanggal: (text.match(/tanggal:\s*(.+)/i) || [])[1]?.trim() || ""
-    };
-  }
-
-  function applyFiltersAndSort() {
-    const fakultasVal = fakultasSelect.value.trim();
-    const jenisVal = jenisSelect.value.toLowerCase();
-    const sortVal = sortSelect.value;
-
-    // Filter
-    let filtered = allPrograms.filter(card => {
-      const data = getProgramData(card);
-      const fakultasMatch =
-        !fakultasVal || String(data.fakultasId) === String(fakultasVal);
-      const jenisMatch = !jenisVal || data.jenis.includes(jenisVal);
-      return fakultasMatch && jenisMatch;
-    });
-
-    // Sort
-    filtered.sort((a, b) => {
-      const dateA = new Date(getProgramData(a).tanggal);
-      const dateB = new Date(getProgramData(b).tanggal);
-      return sortVal === "newest" ? dateB - dateA : dateA - dateB;
-    });
-
-    renderPrograms(filtered);
-  }
-
-  function renderPrograms(programList) {
-    programsContainer.innerHTML = "";
-
-    const totalPrograms = programList.length;
-    const totalPages = Math.ceil(totalPrograms / programsPerPage);
-
-    if (totalPrograms === 0) {
-      paginationControls.classList.add("hidden");
-      programsContainer.innerHTML = "<p>Tidak ada program yang ditemukan.</p>";
-      return;
-    }
-
-    paginationControls.classList.remove("hidden");
-
-    // Slice programs for current page
-    const start = (currentPage - 1) * programsPerPage;
-    const end = start + programsPerPage;
-    const currentPrograms = programList.slice(start, end);
-
-    currentPrograms.forEach(card => programsContainer.appendChild(card));
-
-    renderPaginationButtons(totalPages, programList);
-  }
-
-  function renderPaginationButtons(totalPages, programList) {
-    pageButtonsContainer.innerHTML = "";
-
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = i;
-      btn.classList.add("page-btn");
-      if (i === currentPage) btn.classList.add("active");
-
-      btn.addEventListener("click", () => {
-        currentPage = i;
-        renderPrograms(programList);
-      });
-
-      pageButtonsContainer.appendChild(btn);
-    }
-  }
-
-  // View More button
-  viewMoreBtn.addEventListener("click", () => {
-    programsPerPage = expandPageLimit;
-    currentPage = 1;
-    applyFiltersAndSort();
-  });
-
-  // Sort/filter apply
-  applyBtn.addEventListener("click", () => {
-    programsPerPage = 6; // reset to initial
-    currentPage = 1;
-    applyFiltersAndSort();
-  });
-
-  // Initial load (newest by default)
-  applyFiltersAndSort();
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("lecturer-modal");
+  const modalContent = document.querySelector(".profile-modal-content");
+
   const modalPhoto = document.getElementById("modal-photo");
   const modalName = document.getElementById("modal-name");
   const modalFakultas = document.getElementById("modal-fakultas");
@@ -173,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalProfileLink = document.getElementById("modal-profile-link");
   const modalClose = document.getElementById("modal-close");
 
-  // Open modal
+  // Open modal when clicking avatar
   document.querySelectorAll(".profile-click").forEach(img => {
     img.addEventListener("click", () => {
       modalPhoto.src = img.dataset.picture;
@@ -184,18 +77,74 @@ document.addEventListener("DOMContentLoaded", () => {
       modalProfileLink.href = img.dataset.profileUrl;
 
       modal.classList.remove("hidden");
-      setTimeout(() => modal.classList.add("visible"), 10);
+
+      // Allow CSS transition to activate
+      requestAnimationFrame(() => {
+        modal.classList.add("visible");
+      });
     });
   });
 
-  // Close modal
-  modalClose.addEventListener("click", closeModal);
+  // Close when pressing X
+  modalClose.addEventListener("click", () => closeModal());
+
+  // Close when clicking outside the content
   modal.addEventListener("click", e => {
-    if (e.target === modal) closeModal();
+    if (!modalContent.contains(e.target)) closeModal();
   });
 
   function closeModal() {
     modal.classList.remove("visible");
-    setTimeout(() => modal.classList.add("hidden"), 300);
+    setTimeout(() => modal.classList.add("hidden"), 300); // match CSS transition time
   }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("lecturer-modal");
+
+    const modalPhoto = document.getElementById("modal-photo");
+    const modalName = document.getElementById("modal-name");
+    const modalFakultas = document.getElementById("modal-fakultas");
+
+    const modalEmail = document.getElementById("modal-email");
+    const modalNIDN = document.getElementById("modal-nidn");
+    const modalPosisi = document.getElementById("modal-posisi");
+
+    const modalJabatan = document.getElementById("modal-jabatan");
+    const modalBidang = document.getElementById("modal-bidang");
+    const modalTelp = document.getElementById("modal-telp");
+
+    const modalProfileLink = document.getElementById("modal-profile-link");
+    const modalClose = document.getElementById("modal-close");
+
+    // Delegated click handler
+    document.addEventListener("click", e => {
+        const img = e.target.closest(".profile-click");
+        if (!img) return;
+
+        modalPhoto.src = img.dataset.picture;
+        modalName.textContent = img.dataset.name;
+        modalFakultas.textContent = img.dataset.fakultas;
+
+        modalEmail.textContent = img.dataset.email;
+        modalNIDN.textContent = img.dataset.nidn;
+        modalPosisi.textContent = img.dataset.posisi;
+
+        modalJabatan.textContent = img.dataset.jabatan;
+        modalBidang.textContent = img.dataset.bidang;
+        modalTelp.textContent = img.dataset.telp;
+
+        modalProfileLink.href = img.dataset.profileUrl;
+
+        modal.classList.add("visible");
+    });
+
+    modalClose.addEventListener("click", () => modal.classList.remove("visible"));
+
+    modal.addEventListener("click", e => {
+        if (e.target === modal) modal.classList.remove("visible");
+    });
+});
+
+
+

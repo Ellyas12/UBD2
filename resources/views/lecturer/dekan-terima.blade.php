@@ -9,7 +9,7 @@
 <body>
 <div class="dashboard-container">
     @include('lecturer.navbar')
-
+    <main class="main-content">
     <div class="program-section">
         <h2>📋 Review Program</h2>
 
@@ -46,6 +46,7 @@
     @endif
 </form>
     </div>
+</main>
 </div>
 </body>
 </html>

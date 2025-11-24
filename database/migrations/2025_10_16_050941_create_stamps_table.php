@@ -6,14 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('stamp', function (Blueprint $table) {
             $table->id('stamp_id');
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             $table->unsignedBigInteger('program_id')->unique();
             $table->foreign('program_id')

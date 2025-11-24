@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const buttonBehaviors = {
     'sidebar-logout-btn': 'Logging out...',
-    'btn-submit' : 'Submitting...'
+    'btn-submit' : 'Submitting...',
+    'btn-red' : 'Deleting...'
   };
 
   document.querySelectorAll('form').forEach(form => {

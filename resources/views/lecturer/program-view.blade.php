@@ -5,6 +5,7 @@
   <title>Lihat Program | UBD</title>
   <link rel="stylesheet" href="{{ asset('css/Lprogramcreate.css') }}">
   <link rel="stylesheet" href="{{ asset('css/Lprogramview.css') }}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
 <body>
   <div class="dashboard-container">
@@ -12,6 +13,7 @@
     <main class="main-content">
       <div class="program-wrapper">
         <div class="profile-form">
+
           {{-- Flash Message --}}
           @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -20,52 +22,89 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
           @endif
 
-          <h2>Detail Program</h2>
+          <h2 class="section-title">Detail Program</h2>
 
-          <div class="program-details">
-            <p><strong>Judul:</strong> {{ $program->judul }}</p>
-            <p><strong>Jenis:</strong> {{ $program->jenis }}</p>
-            <p><strong>Bidang:</strong> {{ $program->bidang }}</p>
-            <p><strong>Topik:</strong> {{ $program->topik }}</p>
-            <p><strong>Ketua:</strong> {{ $program->ketua->dosen->nama ?? '-' }}</p>
-            <p><strong>Anggota:</strong> 
-                @if ($program->anggota->isNotEmpty())
+          <div class="details-grid">
+
+            {{-- Left column: Program info --}}
+            <div class="detail-card">
+              <h3>Program Info</h3>
+              <p><strong>Judul:</strong> {{ $program->judul ?? '-' }}</p>
+              <p><strong>Jenis:</strong> {{ $program->jenis ?? '-' }}</p>
+              <p><strong>Bidang:</strong> {{ $program->bidang ?? '-' }}</p>
+              <p><strong>Topik:</strong> {{ $program->topik ?? '-' }}</p>
+              <p><strong>Pertemuan:</strong> {{ $program->pertemuan->nama ?? '-' }}</p>
+              <p><strong>Tanggal:</strong> {{ $program->tanggal ?? '-' }}</p>
+            </div>
+
+            {{-- Right column: Team & financial --}}
+            <div class="detail-card">
+              <h3>Team</h3>
+              <p>
+                <strong>Ketua:</strong>
+                {{ $program->ketua->dosen->nama ?? '-' }}
+                - {{ $program->ketua->dosen->user->nidn ?? '-' }}
+              </p>
+
+              <p><strong>Anggota:</strong></p>
+              @if ($program->anggota->isNotEmpty())
+                <ul>
                   @foreach ($program->anggota as $anggota)
-                    {{ $anggota->dosen->nama ?? '-' }}<br>
+                    <li>
+                      {{ $anggota->dosen->nama ?? '-' }}
+                      - {{ $anggota->dosen->user->nidn ?? '-' }}
+                    </li>
                   @endforeach
+                </ul>
+              @else
+                <p>-</p>
+              @endif
+
+              <h3 style="margin-top:12px;">Financial</h3>
+              <p><strong>Biaya:</strong> Rp {{ number_format($program->biaya, 0, ',', '.') }}</p>
+              <p><strong>Sumber Biaya:</strong> {{ $program->sumber_biaya ?? '-' }}</p>
+              <p><strong>Website:</strong>
+                @if($program->linkweb)
+                  <a href="{{ $program->linkweb }}" target="_blank" rel="noopener noreferrer">{{ $program->linkweb }}</a>
                 @else
                   -
-                @endif</p>
-            <p><strong>Tanggal:</strong> {{ $program->tanggal }}</p>
-            <p><strong>Biaya:</strong> {{ $program->biaya }}</p>
-            <p><strong>Sumber Biaya:</strong> {{ $program->sumber_biaya }}</p>
-            <p><strong>Pertemuan:</strong> {{ $program->pertemuan->nama ?? '-' }}</p>
-            <p><strong>linkweb:</strong> {{ $program->linkweb }}</p>
-            <p><strong>Deskripsi:</strong></p>
-            <p>{{ $program->deskripsi ?? '-' }}</p>
+                @endif
+              </p>
+            </div>
 
+            {{-- Full-width description --}}
+            <div class="description-card" style="grid-column: 1 / -1;">
+              <h3>Deskripsi</h3>
+              <p>{{ $program->deskripsi ?? '-' }}</p>
+            </div>
+
+            {{-- Files --}}
             @if($files->count())
-              <h3>Berkas Terunggah</h3>
-              <ul>
-                @foreach ($files as $file)
-                  <li>
-                    <a href="{{ asset('storage/' . $file->file) }}" target="_blank">
-                      📄 {{ $file->nama }}
-                    </a>
-                  </li>
-                @endforeach
-              </ul>
+              <div class="files-card" style="grid-column: 1 / -1;">
+                <h3>Berkas Terunggah</h3>
+                <ul>
+                  @foreach ($files as $file)
+                    <li>
+                      <a href="{{ asset('storage/' . $file->file) }}" target="_blank" rel="noopener noreferrer">
+                        📄 {{ $file->nama }}
+                      </a>
+                    </li>
+                  @endforeach
+                </ul>
+              </div>
             @endif
+
+          </div> {{-- .details-grid --}}
+
+          {{-- Buttons --}}
+          <div class="button-area">
+            <a href="{{ route('program') }}" class="btn">← Back to Program List</a>
+            <a href="{{ route('program.edit', $program->program_id) }}" class="btn edit">✏️ Edit Program</a>
           </div>
-          <div class="form-navigation">
-            <a href="{{ route('program') }}" class="btn-submit"> ← Back to Program List</a>
-          </div>          
-          <div class="form-navigation">
-            <a href="{{ route('program.edit', $program->program_id) }}" class="btn-submit">✏️ Edit Program</a>
-          </div>
-        </div>
-      </div>
+
+        </div> {{-- .profile-form --}}
+      </div> {{-- .program-wrapper --}}
     </main>
-  </div>  
+  </div>
 </body>
 </html>

@@ -31,7 +31,7 @@ class ProgramController extends Controller
         if ($dosen) {
         $myPrograms = Program::with(['dosen', 'pertemuan', 'ketua.dosen', 'anggota.dosen'])
             ->where('dosen_id', $dosen->dosen_id)
-            ->latest('tanggal')
+            ->orderBy('updated_at', 'desc') 
             ->paginate(5);
         }
 
@@ -258,8 +258,10 @@ class ProgramController extends Controller
 
     public function confirmDelete($id)
     {
-        $program = Program::findOrFail($id);
-        return view('lecturer.program-delete', compact('program'));
+        $program = Program::with(['dosen', 'pertemuan'])->findOrFail($id);
+        $files = \App\Models\File::where('program_id', $id)->get();
+
+        return view('lecturer.program-delete', compact('program', 'files'));
     }
 
     public function destroy($id)

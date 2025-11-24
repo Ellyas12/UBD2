@@ -11,8 +11,9 @@
 .profile-container {
   display: flex;
   width: 100%;
-  min-height: 100%;
-  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  max-height: 100%;
   gap: 20px;
 }
 
@@ -47,12 +48,19 @@
   cursor: pointer;
   font-size: 16px;
 }
+
 .profile-menu [role="tab"][aria-selected="true"] {
   font-weight: bold;
   background-color: #f0f0f0;
   border-left: 4px solid #007BFF;
 }
 .profile-menu li { margin-bottom: 12px; }
+
+.profile-menu ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
 
 /* Form area */
 .profile-form {
@@ -61,7 +69,16 @@
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+
+  height: 650px;      /* FIXED HEIGHT */
+  overflow-y: auto;   /* SCROLL WHEN CONTENT IS LONG */
 }
+
+.profile-form > [role="tabpanel"] {
+  height: 100%;
+  overflow-y: auto;
+}
+
 .profile-form form {
   display: flex;
   flex-direction: column;
@@ -143,3 +160,96 @@ table th { background: #f5f5f5; }
   font-size: 12px;
 }
 
+.pagination .page-link {
+    color: #c62828;                     /* text color */
+}
+
+.pagination .page-link:hover {
+    color: #fff;
+    background-color: #c62828;
+    border-color: #c62828;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #c62828;          /* active page */
+    border-color: #c62828;
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #c62828;
+    opacity: 0.5;
+}
+
+/* ============================
+   MOBILE RESPONSIVE FIX (<768px)
+   ============================ */
+@media (max-width: 768px) {
+  
+  /* Main container stacks vertically */
+  .profile-container {
+    flex-direction: column;
+    max-width: 100%;
+    padding: 15px;
+  }
+
+  /* Sidebar becomes horizontal (top bar) */
+  .profile-sidebar {
+    width: 100%;
+    flex: none;
+    padding: 15px;
+  }
+
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 15px;
+  }
+
+  /* Tabs become horizontal scrollable */
+  .profile-menu ul {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 8px;
+  }
+
+  .profile-menu li {
+    flex: 0 0 auto;
+    margin-bottom: 0;
+  }
+
+  .profile-menu button[role="tab"] {
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 8px 14px;
+    border-radius: 20px;
+  }
+
+  /* Right form content fills screen */
+  .profile-form {
+    height: auto;             /* remove fixed height */
+    padding: 20px;
+    overflow-y: visible;
+  }
+
+  /* Each tab panel scrolls naturally */
+  .profile-form > [role="tabpanel"] {
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Make form elements readable */
+  .profile-form input,
+  .profile-form select {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  /* Tables become scrollable horizontally */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

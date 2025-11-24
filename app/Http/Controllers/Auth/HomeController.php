@@ -11,37 +11,57 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $dosen = $user->dosen ?? null;
+
         $fakultasList = Fakultas::all();
         $lecturers = Dosen::all();
 
-        $programList = Program::where('status', 'Accepted')
+        // --- NEW FILTERS ---
+        $fakultas = $request->input('fakultas');
+        $jenis = $request->input('jenis');
+        $sort = $request->input('sort', 'newest');
+
+        $programList = Program::with(['dosen.fakultas'])
+            ->where('status', 'Accepted')
             ->where('stamp', 'Done')
-            ->get();
+            
+            // Filter Fakultas
+            ->when($fakultas, function ($q) use ($fakultas) {
+                return $q->whereHas('dosen.fakultas', function ($qq) use ($fakultas) {
+                    $qq->where('fakultas_id', $fakultas);
+                });
+            })
 
+            // Filter Jenis
+            ->when($jenis, function ($q) use ($jenis) {
+                return $q->where('jenis', $jenis);
+            })
 
-        $myPrograms = [];
+            // Sort
+            ->when($sort === 'newest', fn($q) => $q->orderBy('tanggal', 'desc'))
+            ->when($sort === 'oldest', fn($q) => $q->orderBy('tanggal', 'asc'))
+
+            // Pagination (8 per page)
+            ->paginate(8)
+            ->appends($request->query()); // keep filter params on next pages
+
+        // Your original "My Programs"
+        $myPrograms = collect();
         if ($dosen) {
             $myPrograms = Program::with(['dosen', 'pertemuan'])
                 ->where('dosen_id', $dosen->dosen_id)
-                ->latest('tanggal')
+                ->latest('updated_at', 'desc')
                 ->get();
         }
-
-        $recentPrograms = Program::with(['dosen', 'pertemuan'])
-            ->latest('tanggal')
-            ->take(6)
-            ->get();
 
         return view('lecturer.home', [
             'user' => $user,
             'dosen' => $dosen,
             'lecturers' => $lecturers,
             'myPrograms' => $myPrograms,
-            'recentPrograms' => $recentPrograms,
             'programList' => $programList,
             'fakultasList' => $fakultasList
         ]);

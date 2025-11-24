@@ -27,21 +27,21 @@
             <table class="table align-middle">
               <thead>
                 <tr>
-                  <th>Judul</th>
-                  <th>Jenis</th>
-                  <th>Tanggal</th>
-                  <th>Status</th>
-                  <th>Stample</th>
-                  <th>Action</th>
+                  <th class="left">Judul</th>
+                  <th class="left">Jenis</th>
+                  <th class="left">Tanggal</th>
+                  <th class="center">Status</th>
+                  <th class="center">Stample</th>
+                  <th class="center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 @forelse($myPrograms as $program)
                 <tr>
-                  <td>{{ $program->judul }}</td>
-                  <td>{{ $program->jenis }}</td>
-                  <td>{{ $program->tanggal }}</td>
-                  <td>
+                  <td class="left">{{ $program->judul }}</td>
+                  <td class="left">{{ $program->jenis }}</td>
+                  <td class="left">{{ $program->tanggal }}</td>
+                  <td class="center">
                     <span class="badge 
                       @if($program->status == 'Pending') bg-warning text-dark
                       @elseif($program->status == 'Accepted') bg-success
@@ -51,7 +51,7 @@
                       {{ $program->status }}
                     </span>
                   </td>
-                  <td>
+                  <td class="center">
                     <span class="badge 
                       @if($program->stamp == 'Not yet') bg-warning text-dark
                       @elseif($program->stamp == 'Done') bg-success
@@ -59,7 +59,7 @@
                       {{ $program->stamp }}
                     </span>
                   </td>
-                  <td>
+                  <td class="center">
                       <a href="{{ route('program.view', $program->program_id) }}" 
                         class="btn btn-info btn-sm" 
                         target="_blank">👁️ Visit</a>
@@ -87,10 +87,14 @@
                 </tr>
                 @endforelse
 
-                @for ($i = $myPrograms->count(); $i < 5; $i++)
-                  <tr>
-                    <td colspan="8" style="height: 48px; border: none;">&nbsp;</td>
-                  </tr>
+                @php
+                    $count = is_countable($myPrograms) ? count($myPrograms) : 0;
+                @endphp
+
+                @for ($i = $count; $i < 5; $i++)
+                    <tr>
+                        <td colspan="8" style="height: 48px; border: none;">&nbsp;</td>
+                    </tr>
                 @endfor
 
               </tbody>

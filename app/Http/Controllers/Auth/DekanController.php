@@ -10,39 +10,58 @@ use Illuminate\Http\Request;
 
 class DekanController extends Controller
 {
-    /**
-     * Display the main Dekan dashboard.
-     */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $dekan = Dosen::where('user_id', $user->user_id)->first();
 
         if (!$dekan) {
-            return redirect()->route('lecturer.home')->with('error', 'Data dosen tidak ditemukan.');
+            return redirect()->route('lecturer.home')
+                ->with('error', 'Data dosen tidak ditemukan.');
         }
 
-        // === Get programs from same faculty ===
-        $programs = Program::whereHas('dosen', function ($query) use ($dekan) {
-                $query->where('fakultas_id', $dekan->fakultas_id);
+        $searchPending   = $request->search_pending;
+        $searchRevision  = $request->search_revision;
+        $searchProcessed = $request->search_processed;
+
+        $pending = Program::whereHas('dosen', function ($q) use ($dekan) {
+                $q->where('fakultas_id', $dekan->fakultas_id);
+            })
+            ->where('stamp', 'Done')
+            ->where('status', 'Pending')
+            ->when($searchPending, function ($q) use ($searchPending) {
+                $q->where('judul', 'like', "%{$searchPending}%");
             })
             ->with('dosen')
             ->orderBy('tanggal', 'desc')
-            ->get();
+            ->paginate(5, ['*'], 'pending_page');
 
-        // === Separate by categories ===
-        // 1️⃣ Pending & Processed should still require stamp = 'Done'
-        $pending = $programs->where('stamp', 'Done')->where('status', 'Pending');
-        $processed = $programs->where('stamp', 'Done')->whereIn('status', ['Accepted', 'Denied']);
-        $revision = $programs->where('status', 'Revisi');
+        $revision = Program::whereHas('dosen', function ($q) use ($dekan) {
+                $q->where('fakultas_id', $dekan->fakultas_id);
+            })
+            ->where('status', 'Revisi')
+            ->when($searchRevision, function ($q) use ($searchRevision) {
+                $q->where('judul', 'like', "%{$searchRevision}%");
+            })
+            ->with('dosen')
+            ->orderBy('tanggal', 'desc')
+            ->paginate(5, ['*'], 'revision_page');
+
+        $processed = Program::whereHas('dosen', function ($q) use ($dekan) {
+                $q->where('fakultas_id', $dekan->fakultas_id);
+            })
+            ->where('stamp', 'Done')
+            ->whereIn('status', ['Accepted', 'Denied'])
+            ->when($searchProcessed, function ($q) use ($searchProcessed) {
+                $q->where('judul', 'like', "%{$searchProcessed}%");
+            })
+            ->with('dosen')
+            ->orderBy('tanggal', 'desc')
+            ->paginate(5, ['*'], 'processed_page');
 
         return view('lecturer.dekan', compact('pending', 'revision', 'processed'));
     }
 
-
-    /**
-     * Show the review form for a specific program.
-     */
     public function showReviewPage($program_id)
     {
         $program = Program::with('dosen')->findOrFail($program_id);
@@ -51,9 +70,6 @@ class DekanController extends Controller
         return view('lecturer.dekan-terima', compact('program', 'isEditable'));
     }
 
-    /**
-     * Handle review submission: update program status & add comment.
-     */
     public function submitReview(Request $request, $program_id)
     {
         $request->validate([
@@ -104,5 +120,4 @@ class DekanController extends Controller
 
         return redirect()->route('dekan')->with('success', 'Review berhasil dikirim dan status program diperbarui.');
     }
-
 }
