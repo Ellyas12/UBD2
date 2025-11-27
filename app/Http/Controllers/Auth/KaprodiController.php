@@ -72,7 +72,7 @@ class KaprodiController extends Controller
         $program->stamp = 'Done';
         $program->save();
 
-        Stamp::create([
+        Stamp::updateOrCreate([
             'program_id' => $program->program_id,
             'dosen_id' => $dosen->dosen_id,
         ]);

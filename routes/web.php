@@ -44,20 +44,24 @@ Route::middleware(['guest', 'prevent-back-history'])->group(function () {
     });
 });
 
-Route::middleware(['auth', 'prevent-back-history'])->group(function () {
+Route::middleware(['auth', 'prevent-back-history', 'inactivity'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::middleware('role:Lecturer')->group(function () {
         Route::get('/home', [HomeController::class, 'index'])->name('lecturer.home');
         Route::get('/dosen/{id}', [DosenController::class, 'show'])->name('dosen.profile');
 
-        Route::get('/kaprodi', [KaprodiController::class, 'index'])->name('kaprodi');
-        Route::get('/kaprodi/stamp/{id}', [KaprodiController::class, 'showStampPage'])->name('kaprodi.stamp.show');
-        Route::post('/kaprodi/stamp/{id}/confirm', [KaprodiController::class, 'confirmStamp'])->name('kaprodi.stamp.confirm');
+        Route::middleware(['posisi:Kaprodi'])->group(function () {
+            Route::get('/kaprodi', [KaprodiController::class, 'index'])->name('kaprodi');
+            Route::get('/kaprodi/stamp/{id}', [KaprodiController::class, 'showStampPage'])->name('kaprodi.stamp.show');
+            Route::post('/kaprodi/stamp/{id}/confirm', [KaprodiController::class, 'confirmStamp'])->name('kaprodi.stamp.confirm');
+        });
 
-        Route::get('/dekan', [DekanController::class, 'index'])->name('dekan');
-        Route::get('/dekan/review/{program_id}', [DekanController::class, 'showReviewPage'])->name('dekan.review');
-        Route::post('/dekan/review/{program_id}', [DekanController::class, 'submitReview'])->name('dekan.submitReview');
+        Route::middleware(['posisi:Dekan'])->group(function () {
+            Route::get('/dekan', [DekanController::class, 'index'])->name('dekan');
+            Route::get('/dekan/review/{program_id}', [DekanController::class, 'showReviewPage'])->name('dekan.review');
+            Route::post('/dekan/review/{program_id}', [DekanController::class, 'submitReview'])->name('dekan.submitReview');
+        });
 
         Route::get('/program', [ProgramController::class, 'index'])->name('program');
         Route::get('/program/create', [ProgramController::class, 'createProgram'])->name('program.createProgram');
@@ -70,7 +74,6 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         Route::delete('/program/{id}', [ProgramController::class, 'destroy'])->name('program.destroy');
         Route::get('/program/restore', [ProgramController::class, 'restoreProgram'])->name('program.restoreProgram');
         Route::post('/program/restore/{id}', [ProgramController::class, 'restore'])->name('program.restore');
-
 
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::post('/profile/remove-picture', [ProfileController::class, 'removePicture'])
@@ -94,6 +97,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         Route::get('/admin/users/{id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/admin/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
         Route::get('/admin/programs', [AdminProgramController::class, 'index'])->name('admin.programs');
+        Route::get('/admin/programs/{id}/view', [AdminProgramController::class, 'view'])->name('admin.programs.view');
         Route::get('/admin/programs/{id}/edit', [AdminProgramController::class, 'edit'])->name('admin.programs.edit');
         Route::post('/admin/programs/{id}/update', [AdminProgramController::class, 'update'])->name('admin.programs.update');
         Route::get('/admin/logs', [LogController::class, 'index'])->name('admin.logs');

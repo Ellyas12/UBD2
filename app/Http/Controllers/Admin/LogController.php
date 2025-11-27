@@ -30,7 +30,8 @@ class LogController extends Controller
                 });
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.log', [
             'user' => $user,

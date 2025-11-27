@@ -228,35 +228,80 @@ document.addEventListener("DOMContentLoaded", function () {
         dropZone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', e => addFiles(e.target.files));
     }
+});
 
-    (function () {
-    const input = document.getElementById("biaya");
-    const form  = document.querySelector("form");
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.getElementById('biaya');
+  const form  = document.querySelector('form');
 
-    if (!input) return;
+  if (!input) return;
 
-    function formatRupiah(numStr) {
-        return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  // Format digits like "1.234.567"
+  function formatRupiahFromDigits(digits) {
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  // Keep caret reasonably placed after formatting
+  function setCaretPosition(el, pos) {
+    try {
+      el.setSelectionRange(pos, pos);
+    } catch (e) {
+      // ignore if not focusable
+    }
+  }
+
+  // Handler for input & paste
+  function onInput(e) {
+    const el = e.target;
+    const before = el.value;
+    const caretBefore = el.selectionStart;
+
+    // Extract only digits
+    const digits = before.replace(/\D/g, '');
+
+    if (digits === '') {
+      el.value = '';
+      return;
     }
 
-    input.addEventListener("input", function () {
-        let digits = this.value.replace(/\D/g, "");
+    const formatted = formatRupiahFromDigits(digits);
 
-        if (digits === "") {
-        this.value = "";
-        return;
-        }
+    // Calculate new caret position:
+    // Count number of non-digit characters to left of caret previously
+    const leftPart = before.slice(0, caretBefore);
+    const digitsLeftCount = (leftPart.match(/\d/g) || []).length;
 
-        this.value = formatRupiah(digits);
-
-        // always keep cursor at the end (most user-friendly)
-        this.setSelectionRange(this.value.length, this.value.length);
-    });
-
-    if (form) {
-        form.addEventListener("submit", function () {
-        input.value = input.value.replace(/\D/g, "");
-        });
+    // Now determine caret index in the new formatted string after digitsLeftCount digits
+    let newCaret = 0;
+    let seenDigits = 0;
+    for (let i = 0; i < formatted.length; i++) {
+      if (/\d/.test(formatted[i])) seenDigits++;
+      newCaret++;
+      if (seenDigits >= digitsLeftCount) break;
     }
+
+    el.value = formatted;
+    // set caret slightly after the computed position (user-friendly)
+    setCaretPosition(el, newCaret);
+  }
+
+  // handle typing and input events
+  input.addEventListener('input', onInput);
+
+  // handle paste (ensures paste also runs through formatting)
+  input.addEventListener('paste', function (e) {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    const digits = text.replace(/\D/g, '');
+    if (digits === '') return;
+    input.value = formatRupiahFromDigits(digits);
+    setCaretPosition(input, input.value.length);
+  });
+
+  // On submit, send only digits (no dots)
+  if (form) {
+    form.addEventListener('submit', function () {
+      input.value = input.value.replace(/\D/g, '');
     });
+  }
 });

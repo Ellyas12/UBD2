@@ -5,7 +5,6 @@
   <title>Daftar Penelitian dan PKM | UBD</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/Lprogram.css') }}">
-  <script src="{{ asset('js/Block.js') }}"></script>
 </head>
 <body>
   <div class="dashboard-container">
@@ -88,20 +87,21 @@
                 @endforelse
 
                 @php
-                    $count = is_countable($myPrograms) ? count($myPrograms) : 0;
+                    $myrecentPrograms = $myPrograms->take(5);
+                    $empty = 5 - $myrecentPrograms->count();
                 @endphp
 
-                @for ($i = $count; $i < 5; $i++)
-                    <tr>
-                        <td colspan="8" style="height: 48px; border: none;">&nbsp;</td>
-                    </tr>
+                @for ($i = 0; $i < $empty; $i++)
+                <tr>
+                    <td colspan="8" style="height:48px;border:none;">&nbsp;</td>
+                </tr>
                 @endfor
 
               </tbody>
             </table>
-            <div class="mt-3">
-                {{ $myPrograms->links('pagination::bootstrap-5') }}
-            </div>
+          <div class="mt-3">
+              {{ $programList->links('pagination::bootstrap-5') }}
+          </div>
           </div>
 
           <div class="program-actions">

@@ -96,14 +96,13 @@
 
           </div> {{-- .details-grid --}}
 
-          {{-- Buttons --}}
           <div class="button-area">
             <a href="{{ route('program') }}" class="btn">← Back to Program List</a>
             <a href="{{ route('program.edit', $program->program_id) }}" class="btn edit">✏️ Edit Program</a>
           </div>
 
-        </div> {{-- .profile-form --}}
-      </div> {{-- .program-wrapper --}}
+        </div>
+      </div>
     </main>
   </div>
 </body>

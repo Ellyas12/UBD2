@@ -29,7 +29,8 @@ class AdminProgramController extends Controller
                       });
             })
             ->orderBy('tanggal', 'desc')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.program', [
             'user' => $authUser,
@@ -37,6 +38,14 @@ class AdminProgramController extends Controller
             'programs' => $programs,
             'search' => $search,
         ]);
+    }
+
+    public function view($id)
+    {
+        $program = Program::with(['dosen', 'pertemuan'])->findOrFail($id);
+        $files = \App\Models\File::where('program_id', $id)->get();
+
+        return view('admin.program-view', compact('program', 'files'));
     }
 
     public function edit($id)

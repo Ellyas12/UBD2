@@ -7,6 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="{{ asset('css/Lprofile.css') }}">
 </head>
 <body>
@@ -131,6 +132,10 @@
               <label for="profile_picture">Upload Profile Picture</label>
               <input type="file" name="profile_picture" id="profile_picture" accept=".jpg,.jpeg,.png">
 
+              @error('profile_picture')
+                  <div class="text-danger">{{ $message }}</div>
+              @enderror
+
               <button type="submit" class="btn-submit">SUBMIT</button>
             </form>
             
@@ -148,10 +153,8 @@
           <!-- Academic Info -->
           <div id="academic-info" role="tabpanel" aria-labelledby="tab-academic">
             <div id="academic-form">
-
               {{-- === Default View === --}}
               <div class="academic-sections" id="academic-table-view">
-                {{-- Mata Kuliah Section --}}
                 <div class="academic-section">
                   <h3>Mata Kuliah</h3>
                   <div class="table-container">
@@ -185,8 +188,6 @@
                     </table>
                   </div>
                 </div>
-
-                {{-- Prestasi Akademik Section --}}
                 <div class="academic-section">
                   <h3>Prestasi Akademik</h3>
                   <div class="table-container">
@@ -307,52 +308,63 @@
           <!-- Research -->
           <div id="research-info" role="tabpanel" aria-labelledby="tab-research" hidden>
             <h2>Research & Publications</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Judul</th>
-                  <th>Tanggal</th>
-                  <th>Jenis</th>
-                  <th>Status</th>
-                  <th>Stample</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                @forelse($programList as $program)
-                <tr>
-                  <td>{{ $program->judul }}</td>
-                  <td>{{ $program->tanggal }}</td>
-                  <td>{{ $program->jenis }}</td>
+            <div id="table-view">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Judul</th>
+                    <th>Tanggal</th>
+                    <th>Jenis</th>
+                    <th>Status</th>
+                    <th>Stample</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @forelse($programList as $program)
+                  <tr>
+                    <td>{{ $program->judul }}</td>
+                    <td>{{ $program->tanggal }}</td>
+                    <td>{{ $program->jenis }}</td>
+                    <td>
+                      <span class="badge 
+                        @if($program->status == 'Pending') bg-warning text-dark
+                        @elseif($program->status == 'Accepted') bg-success
+                        @elseif($program->status == 'Revisi') bg-primary
+                        @elseif($program->status == 'Denied') bg-danger
+                        @else bg-secondary @endif">
+                        {{ $program->status }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge 
+                        @if($program->stamp == 'Not yet') bg-warning text-dark
+                        @elseif($program->stamp == 'Done') bg-success
+                        @else bg-secondary @endif">
+                        {{ $program->stamp }}
+                      </span>
+                    </td>
                   <td>
-                    <span class="badge 
-                      @if($program->status == 'Pending') bg-warning text-dark
-                      @elseif($program->status == 'Accepted') bg-success
-                      @elseif($program->status == 'Revisi') bg-primary
-                      @elseif($program->status == 'Denied') bg-danger
-                      @else bg-secondary @endif">
-                      {{ $program->status }}
-                    </span>
+                    <a href="{{ route('program.view', $program->program_id) }}" class="btn btn-info btn-sm" target="_blank">👁️ Visit</a>
                   </td>
-                  <td>
-                    <span class="badge 
-                      @if($program->stamp == 'Not yet') bg-warning text-dark
-                      @elseif($program->stamp == 'Done') bg-success
-                      @else bg-secondary @endif">
-                      {{ $program->stamp }}
-                    </span>
-                  </td>
-                <td>
-                  <a href="{{ route('program.view', $program->program_id) }}" class="btn btn-info btn-sm" target="_blank">👁️ Visit</a>
-                </td>
-                </tr>
-                @empty
-                <tr>
-                  <td colspan="6" style="text-align:center;">No research data available</td>
-                </tr>
-                @endforelse
-              </tbody>
-            </table>
+                  </tr>
+                  @empty
+                  <tr>
+                    <td colspan="6" style="text-align:center;">No research data available</td>
+                  </tr>
+                  @endforelse
+                </tbody>
+              </table>
+              <div class="mt-3" id="program-section">
+                {{ $programList->links('pagination::bootstrap-5') }}
+              </div>
+              <button id="btn-analytics" class="btn btn-primary mt-3">📊 View Analytics</button>  
+            </div>
+            <div id="analytics-view" style="display:none; margin-top:20px;">
+                <h3>Program Analytics</h3>
+                <canvas id="programChart" height="120"></canvas>
+                <button id="btn-back" class="btn btn-secondary mb-3">⬅ Back</button>
+            </div>
           </div>
 
           <!-- Security -->
@@ -393,5 +405,9 @@
     </main>
   </div>
   <script src="{{ asset('js/Lprofile.js') }}"></script>
+  <script src="{{ asset('js/Chart.js') }}"></script>
+  <script id="program-data" type="application/json">
+      {!! json_encode($programList->items()) !!}
+  </script>
 </body>
 </html>

@@ -38,7 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Middleware aliases
         $middleware->alias([
+            'inactivity' => \App\Http\Middleware\Inactivity::class,
             'auth' => \App\Http\Middleware\Authenticate::class,
+            'posisi' => \App\Http\Middleware\CheckPosisi::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
             'ensure.email.submitted' => \App\Http\Middleware\EnsureEmailSubmitted::class,

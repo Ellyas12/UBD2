@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit User | UBD</title>
+    <link rel="stylesheet" href="{{ asset('css/Lprogram.css') }}">
+    
+  <link rel="stylesheet" href="{{ asset('css/Programedit.css') }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-
-@include('admin.navbar')
 
 @if ($errors->any())
     <div style="color:red;">
@@ -20,80 +23,61 @@
 @endif
 
 <div class="dashboard-container">
-    <h2>Edit User</h2>
+    @include('admin.navbar')
+    <main class="main-content">
+        <div class="program-detail">
+        <form action="{{ route('admin.users.update', $userData->user_id) }}" method="POST" style="margin-top:20px;">
+            @csrf
+            @method('PUT')
+            <h2>User Role Edit</h2>
 
-    <form action="{{ route('admin.users.update', $userData->user_id) }}" method="POST" style="margin-top:20px;">
-        @csrf
-        @method('PUT')
+            <label>Username</label><br>
+            <input type="text" name="username" value="{{ $userData->username }}" readonly><br><br>
 
+            <label>Posisi</label><br>
+            <select name="posisi" required>
+                <option value="Dekan" {{ $userData->posisi == 'Dekan' ? 'selected' : '' }}>Dekan</option>
+                <option value="Kaprodi" {{ $userData->posisi == 'Kaprodi' ? 'selected' : '' }}>Kaprodi</option>
+                <option value="Guru" {{ $userData->posisi == 'Guru' ? 'selected' : '' }}>Guru</option>
+            </select>
+            <br><br>
 
-        <h3>User Info</h3>
+            <label>Role</label><br>
+            <select name="role" required>
+                <option value="Lecturer" {{ $userData->role == 'Lecturer' ? 'selected' : '' }}>Lecturer</option>
+                <option value="Admin" {{ $userData->role == 'Admin' ? 'selected' : '' }}>Admin</option>
+            </select>
+            <br><br>
 
-        <label>Username</label><br>
-        <input type="text" name="username" value="{{ $userData->username }}" required><br><br>
+            <label>Jabatan</label><br>
+            <select name="jabatan_id">
+                <option value="">-- Pilih Jabatan --</option>
+                @foreach($jabatanList as $j)
+                    <option value="{{ $j->jabatan_id }}"
+                        {{ optional($userData->dosen)->jabatan_id == $j->jabatan_id ? 'selected' : '' }}>
+                        {{ $j->nama }}
+                    </option>
+                @endforeach
+            </select>
+            <br><br>
 
-        <label>Email</label><br>
-        <input type="email" name="email" value="{{ $userData->email }}" required><br><br>
+            <label>Fakultas</label><br>
+            <select name="fakultas_id">
+                <option value="">-- Pilih Fakultas --</option>
+                @foreach($fakultasList as $f)
+                    <option value="{{ $f->fakultas_id }}"
+                        {{ optional($userData->dosen)->fakultas_id == $f->fakultas_id ? 'selected' : '' }}>
+                        {{ $f->nama }}
+                    </option>
+                @endforeach
+            </select>
+            <br><br>
 
-        <label>NIDN</label><br>
-        <input type="text" name="nidn" value="{{ $userData->nidn }}"><br><br>
-
-        <label>Posisi</label><br>
-        <select name="posisi" required>
-            <option value="Dekan" {{ $userData->posisi == 'Dekan' ? 'selected' : '' }}>Dekan</option>
-            <option value="Kaprodi" {{ $userData->posisi == 'Kaprodi' ? 'selected' : '' }}>Kaprodi</option>
-            <option value="Guru" {{ $userData->posisi == 'Guru' ? 'selected' : '' }}>Guru</option>
-        </select>
-        <br><br>
-
-        <label>Role</label><br>
-        <select name="role" required>
-            <option value="Lecturer" {{ $userData->role == 'Lecturer' ? 'selected' : '' }}>Lecturer</option>
-            <option value="Admin" {{ $userData->role == 'Admin' ? 'selected' : '' }}>Admin</option>
-        </select>
-        <br><br>
-
-        <h3>Dosen Info</h3>
-
-        <label>Nama</label><br>
-        <input type="text" name="nama" value="{{ optional($userData->dosen)->nama }}"><br><br>
-
-        <label>No Telp</label><br>
-        <input type="text" name="telp" value="{{ optional($userData->dosen)->telp }}"><br><br>
-
-        <label>Pendidikan</label><br>
-        <input type="text" name="pendidikan" value="{{ optional($userData->dosen)->pendidikan }}"><br><br>
-
-        <label>Bidang</label><br>
-        <input type="text" name="bidang" value="{{ optional($userData->dosen)->bidang }}"><br><br>
-
-        <label>Jabatan</label><br>
-        <select name="jabatan_id">
-            <option value="">-- Pilih Jabatan --</option>
-            @foreach($jabatanList as $j)
-                <option value="{{ $j->jabatan_id }}"
-                    {{ optional($userData->dosen)->jabatan_id == $j->jabatan_id ? 'selected' : '' }}>
-                    {{ $j->nama }}
-                </option>
-            @endforeach
-        </select>
-        <br><br>
-
-        <label>Fakultas</label><br>
-        <select name="fakultas_id">
-            <option value="">-- Pilih Fakultas --</option>
-            @foreach($fakultasList as $f)
-                <option value="{{ $f->fakultas_id }}"
-                    {{ optional($userData->dosen)->fakultas_id == $f->fakultas_id ? 'selected' : '' }}>
-                    {{ $f->nama }}
-                </option>
-            @endforeach
-        </select>
-        <br><br>
-
-        <button type="submit">Update</button>
-        <a href="{{ route('admin.users') }}">Cancel</a>
-    </form>
+            <button type="submit">Update</button>
+            <a href="#" class="btn-cancel" onclick="window.close(); return false;">Cancel</a>
+        </form>
+</div>
+    </main>
 </div>
 </body>
 </html>

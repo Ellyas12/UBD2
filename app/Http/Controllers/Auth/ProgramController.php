@@ -20,22 +20,32 @@ use Illuminate\Support\Str;
 
 class ProgramController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $dosen = $user->dosen ?? null;
+
         $pertemuanList = Pertemuan::all();
         $programList = Program::all();
 
-        $myPrograms = [];
+        // Pagination for main Program list (same as home.blade behavior)
+        $programList = Program::with(['dosen', 'pertemuan'])
+            ->orderBy('updated_at', 'desc')
+            ->paginate(5)
+            ->appends($request->query());
+
+        // My Programs — NOT paginated (same as home.blade)
+        $myPrograms = collect();
         if ($dosen) {
-        $myPrograms = Program::with(['dosen', 'pertemuan', 'ketua.dosen', 'anggota.dosen'])
-            ->where('dosen_id', $dosen->dosen_id)
-            ->orderBy('updated_at', 'desc') 
-            ->paginate(5);
+            $myPrograms = Program::with(['dosen', 'pertemuan', 'ketua.dosen', 'anggota.dosen'])
+                ->where('dosen_id', $dosen->dosen_id)
+                ->orderBy('updated_at', 'desc')
+                ->get();   // ← collection, not paginator
         }
 
-        return view('lecturer.program', compact('user', 'dosen', 'pertemuanList', 'programList', 'myPrograms'));
+        return view('lecturer.program', compact(
+            'user', 'dosen', 'pertemuanList', 'programList', 'myPrograms'
+        ));
     }
 
     public function createProgram()
@@ -79,7 +89,18 @@ class ProgramController extends Controller
                 ->withInput();
         }
 
-        // ✅ Validate inputs
+        /* ------------------------------------------------------
+        | 1. Clean biaya format (convert "1.500.000" -> "1500000")
+        ------------------------------------------------------ */
+        if ($request->filled('biaya')) {
+            $request->merge([
+                'biaya' => str_replace('.', '', $request->biaya)
+            ]);
+        }
+
+        /* ------------------------------------------------------
+        | 2. Validate inputs
+        ------------------------------------------------------ */
         $request->validate([
             'jenis'         => 'required|string|max:255',
             'bidang'        => 'required|string|max:255',
@@ -95,28 +116,34 @@ class ProgramController extends Controller
             'deskripsi'     => 'nullable|string',
             'linkweb'       => 'nullable|string',
             'linkpdf'       => 'nullable|array|max:5',
-            'linkpdf.*'     => 'nullable|file|mimes:pdf,doc,docx,zip,jpg,jpeg,png|max:5120', // ≤5MB
+            'linkpdf.*'     => 'nullable|file|mimes:pdf,doc,docx,zip,jpg,jpeg,png|max:5120',
         ]);
 
-        // ✅ Check total file size (≤10MB)
+        /* ------------------------------------------------------
+        | 3. Check total file size ≤ 10MB
+        ------------------------------------------------------ */
         $totalSize = 0;
         if ($request->hasFile('linkpdf')) {
             foreach ($request->file('linkpdf') as $file) {
                 $totalSize += $file->getSize();
             }
         }
+
         if ($totalSize > 10 * 1024 * 1024) {
-            return back()->with('error', 'Total ukuran semua file tidak boleh melebihi 10MB.')->withInput();
+            return back()->with('error', 'Total ukuran semua file tidak boleh melebihi 10MB.')
+                        ->withInput();
         }
 
-        // ✅ Create the Program
+        /* ------------------------------------------------------
+        | 4. Create Program
+        ------------------------------------------------------ */
         $program = Program::create([
             'jenis'        => $request->jenis,
             'bidang'       => $request->bidang,
             'topik'        => $request->topik,
             'judul'        => $request->judul,
             'tanggal'      => $request->tanggal,
-            'biaya'        => $request->biaya,
+            'biaya'        => (int) $request->biaya, // already cleaned
             'sumber_biaya' => $request->sumber_biaya,
             'pertemuan_id' => $request->pertemuan_id,
             'linkweb'      => $request->linkweb,
@@ -124,13 +151,17 @@ class ProgramController extends Controller
             'dosen_id'     => $dosen->dosen_id,
         ]);
 
-        // ✅ Save Ketua (leader)
+        /* ------------------------------------------------------
+        | 5. Save Ketua (leader)
+        ------------------------------------------------------ */
         Ketua::create([
             'program_id' => $program->program_id,
             'dosen_id'   => $request->ketua_id,
         ]);
 
-        // ✅ Save Anggota (members)
+        /* ------------------------------------------------------
+        | 6. Save Anggota (members)
+        ------------------------------------------------------ */
         if ($request->filled('anggota_ids')) {
             foreach ($request->anggota_ids as $anggotaId) {
                 Anggota::create([
@@ -140,7 +171,9 @@ class ProgramController extends Controller
             }
         }
 
-        // ✅ Handle file uploads
+        /* ------------------------------------------------------
+        | 7. Upload files
+        ------------------------------------------------------ */
         if ($request->hasFile('linkpdf')) {
             $folderPath = 'program_files/' . $program->program_id;
 
@@ -161,6 +194,7 @@ class ProgramController extends Controller
         return redirect()->route('program')
             ->with('success', 'Program, ketua, dan anggota berhasil ditambahkan!');
     }
+
 
     public function view($id)
     {

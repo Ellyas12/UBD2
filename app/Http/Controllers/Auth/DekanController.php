@@ -65,9 +65,9 @@ class DekanController extends Controller
     public function showReviewPage($program_id)
     {
         $program = Program::with('dosen')->findOrFail($program_id);
-        $isEditable = ($program->stamp === 'Done' && $program->status === 'Revisi');
-
-        return view('lecturer.dekan-terima', compact('program', 'isEditable'));
+        $isEditable = ($program->stamp === 'Done' && $program->status !== 'Accepted');
+        $files = \App\Models\File::where('program_id', $program_id)->get();
+        return view('lecturer.dekan-terima', compact('program', 'isEditable', 'files'));
     }
 
     public function submitReview(Request $request, $program_id)
@@ -85,12 +85,10 @@ class DekanController extends Controller
             return redirect()->back()->with('error', 'Data dosen tidak ditemukan.');
         }
 
-        // Only allow review if program has been stamped
-        if ($program->stamp !== 'Done' && $program->status !== 'Revisi') {
-            return redirect()->route('dekan')->with('error', 'Program ini belum di-stamp oleh Kaprodi.');
+        if ($program->stamp !== 'Done' || $program->status === 'Accepted') {
+            return redirect()->route('dekan')->with('error', 'Program tidak dapat direview.');
         }
 
-        // === Update program's status and stamp ===
         $updateData = ['status' => $request->status];
 
         if ($request->status === 'Revisi') {
@@ -99,25 +97,21 @@ class DekanController extends Controller
 
         $program->update($updateData);
 
-        // === Update or create comment ===
         $existingComment = Comment::where('program_id', $program->program_id)
             ->where('dosen_id', $dosen->dosen_id)
             ->first();
 
         if ($existingComment) {
-            // Update the existing comment
             $existingComment->update([
                 'content' => $request->content,
             ]);
         } else {
-            // Create a new comment
             Comment::create([
                 'program_id' => $program->program_id,
                 'dosen_id'   => $dosen->dosen_id,
                 'content'    => $request->content,
             ]);
         }
-
         return redirect()->route('dekan')->with('success', 'Review berhasil dikirim dan status program diperbarui.');
     }
 }

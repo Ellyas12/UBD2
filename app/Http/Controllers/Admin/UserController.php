@@ -19,25 +19,29 @@ class UserController extends Controller
 
         $search = $request->input('search');
 
-        // User + Dosen Joined Query with Search
         $users = User::with('dosen')
             ->when($search, function ($query, $search) {
-                $query->where('username', 'like', "%$search%")
-                      ->orWhere('email', 'like', "%$search%")
-                      ->orWhere('nidn', 'like', "%$search%")
-                      ->orWhereHas('dosen', function ($q) use ($search) {
-                          $q->where('nama', 'like', "%$search%");
-                      });
+
+                $query->where(function ($q) use ($search) {
+                    $q->where('username', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%")
+                    ->orWhere('nidn', 'like', "%$search%")
+                    ->orWhereHas('dosen', function ($d) use ($search) {
+                        $d->where('nama', 'like', "%$search%");
+                    });
+                });
             })
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.user', [
-            'user' => $authUser,   // keep original
-            'dosen' => $dosen,     // keep original
-            'users' => $users,     // new user list
-            'search' => $search    // search value
+            'user' => $authUser,
+            'dosen' => $dosen,
+            'users' => $users,
+            'search' => $search
         ]);
     }
+
 
     public function edit($id)
     {

@@ -83,8 +83,6 @@ class AdminProfileController extends Controller
         return back()->with('success', 'Profile picture removed successfully!');
     }
 
-    // 🧩 SECURITY SECTION
-
     public function sendSecurityCode(Request $request)
     {
         $user = auth()->user();

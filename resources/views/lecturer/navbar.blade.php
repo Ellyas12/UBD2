@@ -31,15 +31,19 @@
             <span class="sidebar-label">Profile</span>
         </a>
 
-        <a href="{{ route('kaprodi') }}" class="sidebar-link {{ request()->routeIs('kaprodi') ? 'active' : '' }}">
-            <span class="material-icons">list</span>
-            <span class="sidebar-label">Kaprodi</span>
-        </a>
+        @if (auth()->user()->posisi === 'Kaprodi')
+            <a href="{{ route('kaprodi') }}" class="sidebar-link {{ request()->routeIs('kaprodi') ? 'active' : '' }}">
+                <span class="material-icons">list</span>
+                <span class="sidebar-label">Kaprodi</span>
+            </a>
+        @endif
 
-        <a href="{{ route('dekan') }}" class="sidebar-link {{ request()->routeIs('dekan') ? 'active' : '' }}">
-            <span class="material-icons">list</span>
-            <span class="sidebar-label">Dekan</span>
-        </a>
+        @if (auth()->user()->posisi === 'Dekan')
+            <a href="{{ route('dekan') }}" class="sidebar-link {{ request()->routeIs('dekan') ? 'active' : '' }}">
+                <span class="material-icons">list</span>
+                <span class="sidebar-label">Dekan</span>
+            </a>
+        @endif
     </nav>
 
     <form action="{{ route('logout') }}" method="POST" style="display:inline;"> 

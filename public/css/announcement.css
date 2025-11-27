@@ -1,0 +1,220 @@
+/* =======================
+   GLOBAL STYLES
+======================= */
+body {
+  background-color: #f8f8f8;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #222;
+}
+
+.hidden { display: none; }
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =======================
+   LAYOUT
+======================= */
+.main-content {
+  margin-left: 260px;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+}
+
+/* Sidebar collapsed */
+.sidebar-container.collapsed ~ .main-content {
+  margin-left: 70px;
+}
+
+/* =======================
+   ANNOUNCEMENT BOX
+======================= */
+.announcement-box {
+  background: #b30000;
+  color: #fff;
+  padding: 1.3rem 1.6rem;
+  border-radius: 12px;
+  font-weight: 500;
+  margin-top: 2rem;
+  box-shadow: 0 4px 8px rgba(179, 0, 0, 0.3);
+}
+
+.announcement-box h3 {
+  margin-top: 5px;
+  font-size: 1.4rem;
+}
+
+/* OPTIONAL Danger Style */
+.danger-announcement {
+  border: 1px solid #dc3545;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: rgba(220, 53, 69, 0.05);
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.danger-announcement h3 {
+  color: #c82333;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* =======================
+   FORM UI IMPROVEMENTS
+======================= */
+form label {
+  font-weight: 600;
+  color: #b30000;
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 6px;
+}
+
+form input[type="text"],
+form textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 2px solid #c62828;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+}
+
+form input[type="text"]:focus,
+form textarea:focus {
+  border-color: #b30000;
+  box-shadow: 0 0 4px rgba(179, 0, 0, 0.4);
+}
+
+form button[type="submit"] {
+  margin-top: 1.4rem;
+  background: #b30000;
+  color: #fff;
+  padding: 0.8rem 1.8rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+form button[type="submit"]:hover {
+  background: #8b0000;
+  transform: translateY(-2px);
+}
+
+.announcement-title {
+  color: #b30000;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Box */
+.announcement-form-box {
+  background: #ffffff;
+  border: 2px solid #c62828;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  margin-bottom: 3rem;
+}
+
+.announcement-form-box form label {
+  font-weight: 600;
+  color: #b30000;
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 6px;
+}
+
+.announcement-form-box input[type="text"],
+.announcement-form-box textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 2px solid #c62828;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.2s;
+}
+
+.announcement-form-box input[type="text"]:focus,
+.announcement-form-box textarea:focus {
+  border-color: #b30000;
+  box-shadow: 0 0 4px rgba(179, 0, 0, 0.4);
+}
+
+.announcement-form-box button {
+  margin-top: 1.4rem;
+  background: #b30000;
+  color: #fff;
+  padding: 0.8rem 1.8rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.announcement-form-box button:hover {
+  background: #8b0000;
+  transform: translateY(-2px);
+}
+
+/* Result Title */
+.announcement-result-title {
+  text-align: center;
+  color: #b30000;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.announcement-box {
+  background: #b30000;
+  color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 8px rgba(179, 0, 0, 0.3);
+}
+
+.danger-announcement {
+    border: 1px solid #dc3545; /* same red as btn-outline-danger */
+    padding: 15px;
+    border-radius: 8px;
+    background-color: rgba(220, 53, 69, 0.05); /* subtle red tint */
+    color: #dc3545; /* bright red text */
+    font-weight: 500;
+}
+
+.danger-announcement h3,
+.danger-announcement strong {
+    color: #c82333; /* brighter, more warning-like red */
+    font-weight: 700;
+}
+
+.danger-announcement p {
+    color: #dc3545;
+    margin: 5px 0 0 0;
+}
+

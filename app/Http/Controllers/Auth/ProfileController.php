@@ -47,7 +47,9 @@ class ProfileController extends Controller
             $myPrestasi = Prestasi::where('dosen_id', $dosen->dosen_id)->get();
 
             // Program yang terkait
-            $programList = Program::where('dosen_id', $dosen->dosen_id)->get();
+            $programList = Program::where('dosen_id', $dosen->dosen_id)
+            ->paginate(10)
+            ->fragment('research-info');
         }
 
         return view('lecturer.profile', compact('user','dosen','fakultasList','jabatanList','programList','matkulList','myMatkul','myPrestasi'));
@@ -265,11 +267,6 @@ class ProfileController extends Controller
     public function viewResearch($id)
     {
         return redirect()->away(route('program.view', $id));
-    }
-
-    public function editResearch($id)
-    {
-        return redirect()->away(route('program.edit', $id));
     }
 
     // #security-info

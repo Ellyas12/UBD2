@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Review Program | Dekan</title>
+  <title>Lihat Program | UBD</title>
   <link rel="stylesheet" href="{{ asset('css/Lprogramcreate.css') }}">
   <link rel="stylesheet" href="{{ asset('css/Lprogramview.css') }}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
 <body>
   <div class="dashboard-container">
     @include('lecturer.navbar')
-
     <main class="main-content">
       <div class="program-wrapper">
         <div class="profile-form">
@@ -22,7 +22,7 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
           @endif
 
-          <h2 class="section-title">Review Program</h2>
+          <h2 class="section-title">Detail Program</h2>
 
           <div class="details-grid">
 
@@ -37,7 +37,7 @@
               <p><strong>Tanggal:</strong> {{ $program->tanggal ?? '-' }}</p>
             </div>
 
-            {{-- Right column: Team --}}
+            {{-- Right column: Team & financial --}}
             <div class="detail-card">
               <h3>Team</h3>
               <p>
@@ -72,13 +72,13 @@
               </p>
             </div>
 
-            {{-- Description (read-only, same as Kaprodi) --}}
+            {{-- Full-width description --}}
             <div class="description-card" style="grid-column: 1 / -1;">
-              <h3>Deskripsi Program</h3>
+              <h3>Deskripsi</h3>
               <p>{{ $program->deskripsi ?? '-' }}</p>
             </div>
 
-            {{-- Files section, identical to Kaprodi --}}
+            {{-- Files --}}
             @if($files->count())
               <div class="files-card" style="grid-column: 1 / -1;">
                 <h3>Berkas Terunggah</h3>
@@ -94,64 +94,16 @@
               </div>
             @endif
 
+          </div> {{-- .details-grid --}}
 
-            {{-- === COMMENT SECTION (MODIFIED DESCRIPTION CARD) === --}}
-            <form action="{{ $isEditable ? route('dekan.submitReview', $program->program_id) : '#' }}"
-                  method="POST"
-                  style="grid-column: 1 / -1;">
-              @csrf
-
-              <div class="description-card">
-                <h3>Komentar Dekan</h3>
-
-                <textarea 
-                  name="content"
-                  rows="6"
-                  class="form-control"
-                  placeholder="Tuliskan komentar Anda..."
-                  {{ $isEditable ? '' : 'readonly' }}
-                  required
-                  style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc;"
-                >{{ old('content', optional(optional($program)->comments)->first()->content ?? '') }}</textarea>
-              </div>
-
-
-              {{-- === STATUS DROPDOWN (BOTTOM FULL-WIDTH CARD) === --}}
-              <div class="detail-card" style="grid-column: 1 / -1;">
-                <h3>Status Review</h3>
-
-                <select 
-                  name="status" id="status"
-                  class="form-control"
-                  {{ $isEditable ? '' : 'disabled' }}
-                  required
-                  style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc;"
-                >
-                  <option value="Accepted" {{ $program->status === 'Accepted' ? 'selected' : '' }}>✅ Accepted</option>
-                  <option value="Denied" {{ $program->status === 'Denied' ? 'selected' : '' }}>❌ Denied</option>
-                  <option value="Revisi" {{ $program->status === 'Revisi' ? 'selected' : '' }}>✏️ Revisi</option>
-                </select>
-              </div>
-
-
-              {{-- BUTTON AREA --}}
-              <div class="button-area">
-                <a href="{{ route('dekan') }}" class="btn">⬅️ Kembali</a>
-
-                @if($isEditable)
-                  <button type="submit" class="btn edit">📤 Kirim Review</button>
-                @else
-                  <p><strong>Program belum dapat di-review (menunggu stamp Kaprodi).</strong></p>
-                @endif
-              </div>
-
-            </form>
-
+          <div class="button-area">
+            <a href="#" class="btn" onclick="window.close(); return false;">← Back to Program List</a>
+            <a href="{{ route('admin.programs.edit', $program->program_id) }}" class="btn edit">✏️ Edit Program</a>
           </div>
+
         </div>
       </div>
     </main>
-
   </div>
 </body>
 </html>
